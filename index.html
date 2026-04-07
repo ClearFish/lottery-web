@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1.0,user-scalable=no,viewport-fit=cover"
+    />
+    <link rel="icon" href="/favicon.ico" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="VIB">
+    <meta property="og:url" content="https://vib99.com/" />
+    <meta property="og:title" content="VIB99" />
+    <meta property="og:description" content="Get 20000 VND for free">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image" content="/pwa_logo.png" />
+    
+    <!-- PWA相关meta标签 -->
+    <meta name="theme-color" content="#6b5b95" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="VIB99" />
+    <meta name="msapplication-TileColor" content="#6b5b95" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    
+    <!-- PWA manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="/pwa_logo.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/pwa_logo.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/pwa_logo.png" />
+    <link rel="apple-touch-icon" sizes="167x167" href="/pwa_logo.png" />
+    
+    <!-- Microsoft Tiles -->
+    <meta name="msapplication-TileImage" content="/pwa_logo.png" />
+    <meta name="msapplication-config" content="/browserconfig.xml" />
+    
+    <title>VIB99</title>
+  </head>
+  <body>
+    <div id="app">
+      <style>
+        html,
+        body,
+        #app {
+          height: 100%;
+          margin: 0px;
+          padding: 0px;
+          width: 100%;
+        }
+        .__spinner-container {
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+        }
+        .__spinner {
+          position: relative;
+          width: 68px;
+          height: 68px;
+          background-color: #41b883;
+          animation: cube-shadow-spinner 1.8s cubic-bezier(0.75, 0, 0.5, 1)
+            infinite;
+        }
+        @keyframes cube-shadow-spinner {
+          50% {
+            border-radius: 50%;
+            transform: scale(0.5) rotate(360deg);
+          }
+          100% {
+            transform: scale(1) rotate(720deg);
+          }
+        }
+      </style>
+      <div class="__spinner-container">
+        <div class="__spinner"></div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+    <!-- Eruda 调试工具（仅在配置启用时加载）-->
+    <script>
+      if ('<%- ENABLE_ERUDA %>' === 'true') {
+        const script = document.createElement('script');
+        script.src = '//cdn.jsdelivr.net/npm/eruda';
+        script.onload = function() {
+          eruda.init();
+        };
+        document.body.appendChild(script);
+      }
+    </script>
+    <script src="https://plugin-code.salesmartly.com/js/project_439311_679898_1774172998.js"></script>
+    <script>
+        console.log('ssq:',ssq)
+        window.__ssc.setting = { hideIcon: true };
+    </script>
+  </body>
+</html>

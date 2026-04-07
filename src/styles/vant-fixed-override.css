@@ -1,0 +1,32 @@
+/* 强制处理Vant组件的fixed定位问题 */
+/* 在桌面端限制Vant组件的宽度 */
+@media (min-width: 600px) and (max-width: 9999px) {
+  .van-tabbar--fixed {
+    max-width: 600px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+  
+  .van-nav-bar--fixed {
+    max-width: 600px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+  
+  /* 处理其他可能的fixed元素 */
+  [class*="van-"][class*="fixed"] {
+    max-width: 600px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+}
+
+/* 确保Vant组件在移动端正常显示 */
+@media (max-width: 599px) {
+  .van-tabbar--fixed,
+  .van-nav-bar--fixed {
+    max-width: none !important;
+    left: auto !important;
+    transform: none !important;
+  }
+}
