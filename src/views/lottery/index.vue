@@ -12,7 +12,7 @@
 				</div>
 			</div>
 			<win 
-				v-if="game_type===0" 
+				v-if="game_type==0" 
 				:noThree="noThree" 
 				:isFollow="false"
 				ref="winRef"
@@ -26,7 +26,7 @@
 				:text="text1"
 				@music="setMusic"></win>
 			<d5 
-				v-if="game_type===1" 
+				v-if="game_type==1" 
 				:game-id="params.game_id" 
 				:isFollow="false" 
 				@openRule="isRule=true" 
@@ -39,7 +39,7 @@
 				:text="text1"
 				@music="setMusic"></d5>
 			<k3 
-				v-if="game_type===2" 
+				v-if="game_type==2" 
 				:game-id="params.game_id" 
 				:isFollow="false"
 				@openRule="isRule=true" 
@@ -60,21 +60,21 @@
 				</div>
 				
 				<div class="u-table">
-					<div class="tabBox flex" v-if="tabAction===1 &&game_type===1">
+					<div class="tabBox flex" v-if="tabAction==1 &&game_type==1">
 						<div class="tabItem" v-for="(i,index) in tabList" :key="index" :class="tabCurrent===index ? 'action' : ''" @click="changeMenu(index)">
 							{{i}}
 						</div>
 					</div>
 					<div class="t-tr flex head flex-item-col-center">
 						<!-- 开奖历史 -->
-						<template v-if="tabAction===0">
+						<template v-if="tabAction==0">
 							<template v-if="game_type===0">
 								<div class="flex-item-1 flex-rcc">{{$t('lottery.tableth1')}}</div>
 								<div class="flex-item-1 flex-rcc">{{$t('lottery.tableth2')}}</div>
 								<div class="flex-item-1 flex-rcc">{{$t('lottery.tableth3')}}</div>
 								<div class="flex-item-1 flex-rcc">{{$t('lottery.tableth4')}}</div>
 							</template>
-							<template v-else-if="game_type===1">
+							<template v-else-if="game_type==1">
 								<div class="flex-item-1 flex-rcc">{{$t('lottery.tableth1')}}</div>
 								<div class="flex-item-2 flex-rcc">{{$t('lottery.table5dth2')}}</div>
 								<div class="flex-item-1 flex-rcc">{{$t('lottery.table5dth3')}}</div>
@@ -89,7 +89,7 @@
 							</template>
 						</template>
 						
-						<template v-else-if="tabAction===1">
+						<template v-else-if="tabAction==1">
 							<template v-if="[0,1].includes(game_type)">
 								<div class="flex-item-1 flex-rcc">{{$t('lottery.tableth1')}}</div>
 								<div class="flex-item-2 flex-rcc">{{$t('lottery.popupcell3')}}</div>
@@ -104,9 +104,9 @@
 					</div>
 					
 					<!-- 列表 -->
-					<template v-if="tabAction===0">
+					<template v-if="tabAction==0">
 						<div class="t-tr tr flex flex-item-col-center" v-for="(item,key) in gameLog" :key="key">
-							<template v-if="game_type===0">
+							<template v-if="game_type==0">
 								<div class="flex-item-1 flex-rcc">{{item.period}}</div>
 								<div class="flex-item-1 flex-rcc" :class="{'num_gcolor': [1,3,5,7,9].includes(Number(item.result[0])),'num_rcolor':[0,2,4,6,8].includes(Number(item.result[0]))}">{{item.result[0]}}</div>
 								<div class="flex-item-1 flex-rcc">{{Number(item.result[0])>4? $t('lottery.winGobig'): $t('lottery.winGosmall')}}</div>
@@ -117,7 +117,7 @@
 								</div>
 							</template>
 							
-							<template v-else-if="game_type===1">
+							<template v-else-if="game_type==1">
 								<div class="flex-item-1 flex-rcc">{{item.period}}</div>
 								<div class="flex-item-2 flex-rcc">
 									<span class="border" v-for="(i,index) in item.result" :key="index">{{i}}</span>
@@ -141,10 +141,10 @@
 							</template>
 						</div>
 					</template>
-					<template v-else-if="tabAction===1">
+					<template v-else-if="tabAction==1">
 						<div class="t-tr tr flex flex-item-col-center" v-for="(item,key) in gameLog" :key="key">
 							<div class="flex-item-1 flex-rcc">{{item.period}}</div>
-							<template v-if="game_type===0">
+							<template v-if="game_type==0">
 								<div class="flex-item-2 flex-rcc" style="position: relative;">
 									<div v-for="(i,key) in 10" 
 										:key="key" class="m-li" 
@@ -174,7 +174,7 @@
 									</div>
 								</div>
 							</template>
-							<template v-else-if="game_type===1">
+							<template v-else-if="game_type==1">
 								<div class="flex-item-2 flex-rcc" style="position: relative; font-size: 11px;">
 									<div v-for="(i,key) in 10" 
 										:key="key" class="m-li" 
@@ -307,7 +307,6 @@
 				</div>
 			</div>
 		</div>
-		<!-- <rule :show="isRule" @close="isRule=false"></rule> -->
 	</div>
 </template>
 
@@ -336,9 +335,8 @@ const noThree:any= ref(false)// 是否不展示三分彩
 const isThree:any= ref(false)// 是否只展示三分彩
 const isPlay:any= ref(true)// 是否播放音乐
 const game_id:any= ref('')// 路由初始游戏id
-const game_type:any= ref('')// 游戏类型
+const game_type:any= ref('0')// 游戏类型
 const isRule:any= ref(false)
-const timeData:any= ref({})
 const tabCurrent:any= ref(0)
 const current:any= ref(0)
 const rate:any= ref(1)
@@ -375,15 +373,16 @@ const time = ()=>{
 }
 onMounted(()=>{
     const option = route.query as any;
-    game_type.value = Number(option.game_type)//Number(option.type)
-    game_id.value = option.game_id
-    params.value.game_id = game_id.value 
-    betParams.value.game_id = game_id.value
+    game_type.value = Number(option.game_type) || '0'//Number(option.type)
+	// ?game_id=1&game_type=0&gameMin=1
+    game_id.value = option.game_id  || '1'
+    params.value.game_id = game_id.value ||'0'
+    betParams.value.game_id = game_id.value || '1'
     getResultRecord(1)
     // this.getBetRecord()
     createMusic()
     if(option.min){
-        current.value = Number(option.min)
+        current.value = Number(option.min) || '1'
         isThree.value = true
     }
     if(option.noThree){
@@ -408,16 +407,6 @@ onUnmounted(()=>{
     resetMusic()
 })
 
-		// 	isPlay(newV){
-		// 		if(!newV){
-		// 			music1.value.volume = 0
-		// 			music2.value.volume = 0
-		// 		}else{
-		// 			music1.value.volume = 1
-		// 			music2.value.volume = 1
-		// 		}
-		// 	}
-		// },
 const prevPage = ()=>{
     if(params.value.pageIndex > 1) {
         params.value.pageIndex --;

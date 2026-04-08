@@ -19,7 +19,7 @@
     "No_Data":"Không có dữ liệu"
   },
   "gameHall": {
-    "title": "Sảnh Game",
+    "title": "Lottery",
     "hotGames": "Game Hot",
     "myFavorites": "Yêu thích của tôi",
     "gameProviders": "Nhà cung cấp Game",
@@ -64,7 +64,7 @@
     "loadMoreGames": "Tải thêm game"
   },
   "home": {
-    "title": "Trang chủ",
+    "title": "Lottery",
     "recommendedGames": "Game đề xuất",
     "lotreRecord":"Lịch sử đặt cược",
     "more": "Thêm",

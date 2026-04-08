@@ -1,25 +1,6 @@
 <template>
   <div class="auth-page">
-    <div class="headder">
-      <div class="left">
-        <van-icon name="arrow-left" size="16" color="#666" @click="backHome"/>
-      </div>
-      <img :src="headerLogo" alt="" class="head_logo" @click="backHome">
-      <div class="right"></div>
-    </div>
     <div class="auth-container">
-      <!-- Banner区域 -->
-      <van-swipe class="banner-swipe" :autoplay="3000" indicator-color="white">
-         <van-swipe-item v-for="banner in banners" :key="banner.id">
-           <div class="banner-item" :style="{ backgroundImage: `url(${banner.image})` }">
-             <div class="banner-content">
-               <h2 class="banner-title">{{ banner.title }}</h2>
-               <p class="banner-subtitle">{{ banner.subtitle }}</p>
-             </div>
-           </div>
-         </van-swipe-item>
-       </van-swipe>
-
       <!-- 模式切换 -->
       <div class="mode-switch">
         <div 
@@ -258,14 +239,12 @@
 
 
     </div>
-    <FloatingService />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, onMounted,watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import FloatingService from '@/components/FloatingService/index.vue'
 import { getAdvertise } from '@/api/slide'
 import { useUserStore } from '@/store/modules/user'
 import {useSiteStore} from "@/store/modules/site"
