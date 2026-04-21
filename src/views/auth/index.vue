@@ -126,7 +126,8 @@ const loginForm = reactive({
   agent_user: 'super_agent',
   username: 'player001',
   user_id: '12345',
-  currency: 'USDT'
+  currency: 'USDT',
+  sign:"7ff76dae8e73866820739474ab05f0ad9f5e0a497f31c649dc15b83f95c1ff72"
 })
 
 
