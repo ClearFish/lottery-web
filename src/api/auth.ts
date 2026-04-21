@@ -27,17 +27,16 @@ export function register(data: {
 
 // 登录接口（支持用户名和手机号登录）
 export function login(data: {
+  agent_user?: string
   username?: string
-  mobile?: string
-  area_code?: string
-  password: string
-  captcha?: string
-  code?: string
+  user_id?: string
+  currency: string
+  sign?: string
 }): Promise<ApiResponse<any>> {
   return http.request<ApiResponse<any>>({
-    url: '/api/user/login',
+    url: '/api/game/v1/game-login',
     method: 'post',
-    data
+    data:data
   })
 }
 

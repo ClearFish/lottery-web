@@ -1,90 +1,28 @@
 <template>
   <div class="auth-page">
     <div class="auth-container">
-      <!-- 模式切换 -->
-      <div class="mode-switch">
-        <div 
-          class="switch-item"
-          :class="{ active: mode === 'login' }"
-          @click="switchMode('login')"
-        >
-          <span>{{ $t('auth.login') }}</span>
-        </div>
-        <div 
-          class="switch-item"
-          :class="{ active: mode === 'register' }"
-          @click="switchMode('register')"
-        >
-          <span>{{ $t('auth.register') }}</span>
-        </div>
-        <div class="switch-indicator" :style="{ left: mode === 'login' ? '0' : '50%' }"></div>
-      </div>
-
       <!-- 登录表单 -->
       <div v-if="mode === 'login'" class="form-container">
         <van-form @submit="handleLogin" class="auth-form">
-          <!-- 登录方式切换按钮 -->
-          <div class="login-type-toggle">
-            <van-button 
-              :type="loginType === 'username' ? 'primary' : 'default'"
-              size="small"
-              @click="switchLoginType('username')"
-              class="toggle-btn"
-            >
-              {{ $t('auth.usernameLogin') }}
-            </van-button>
-            <van-button 
-              :type="loginType === 'mobile' ? 'primary' : 'default'"
-              size="small"
-              @click="switchLoginType('mobile')"
-              class="toggle-btn"
-            >
-              {{ $t('auth.mobileLogin') }}
-            </van-button>
-          </div>
+          
 
           <div class="form-group">
             <!-- 用户名登录 -->
-            <div v-if="loginType === 'username'" class="input-wrapper">
+            <div  class="input-wrapper">
               <van-field
-                v-model="loginForm.username"
+                v-model="loginForm.agent_user"
                 name="username"
-                :placeholder="$t('auth.enterUsername')"
+                placeholder="agent_user"
                 left-icon="user-o"
                 clearable
                 class="custom-field"
               />
             </div>
-            
-            <!-- 手机号登录 -->
-            <div v-if="loginType === 'mobile'" class="input-wrapper mobile-row">
-              <div class="area-code-field">
-                <van-field
-                  v-model="loginForm.area_code"
-                  name="area_code"
-                  :placeholder="defaultAreaCode"
-                  left-icon="phone-o"
-                  type="tel"
-                  class="custom-field area-code"
-                />
-              </div>
-              <div class="mobile-field">
-                <van-field
-                  v-model="loginForm.mobile"
-                  name="mobile"
-                  :placeholder="$t('auth.enterMobile')"
-                  type="tel"
-                  clearable
-                  class="custom-field"
-                />
-              </div>
-            </div>
-            
             <div class="input-wrapper">
               <van-field
-                v-model="loginForm.password"
+                v-model="loginForm.username"
                 name="password"
-                :placeholder="$t('auth.enterPassword')"
+                placeholder="username"
                 :type="showLoginPassword ? 'text' : 'password'"
                 left-icon="lock"
                 :right-icon="showLoginPassword ? 'eye-o' : 'closed-eye'"
@@ -93,15 +31,27 @@
                 class="custom-field"
               />
             </div>
+            <div class="input-wrapper">
+              <van-field
+                v-model="loginForm.user_id"
+                name="password"
+                placeholder="user_id"
+                type="text"
+                clearable
+                class="custom-field"
+              />
+            </div>
+            <div class="input-wrapper">
+              <van-field
+                v-model="loginForm.currency"
+                name="password"
+                placeholder="currency"
+                type="text"
+                clearable
+                class="custom-field"
+              />
+            </div>
           </div>
-
-          <div class="form-options">
-            <van-checkbox v-model="rememberMe" class="custom-checkbox">
-              <span class="checkbox-text">{{ $t('auth.rememberPassword') }}</span>
-            </van-checkbox>
-            <span class="forgot-password" @click="goToForgotPassword">{{ $t('auth.forgotPassword') }}</span>
-          </div>
-
           <van-button 
             type="primary" 
             size="large" 
@@ -115,128 +65,6 @@
         </van-form>
        
       </div>
-
-      <!-- 注册表单 -->
-      <div v-if="mode === 'register'" class="form-container">
-        <van-form @submit="handleRegister" class="auth-form">
-          <div class="form-group">
-            <!-- 用户名 -->
-            <div class="input-wrapper">
-              <van-field
-                v-model="registerForm.username"
-                name="username"
-                :placeholder="$t('auth.enterUsername')"
-                left-icon="user-o"
-                clearable
-                class="custom-field"
-                :rules="usernameRules"
-              />
-              <div class="field-tip">{{ $t('auth.usernameTip') }}</div>
-            </div>
-            
-            <!-- 区号和手机号码 -->
-            <div class="input-wrapper mobile-row">
-              <div class="area-code-field">
-                <van-field
-                  v-model="registerForm.area_code"
-                  name="area_code"
-                  :placeholder="defaultAreaCode"
-                  left-icon="phone-o"
-                  type="tel"
-                  class="custom-field area-code"
-                  :rules="areaCodeRules"
-                />
-              </div>
-              <div class="mobile-field">
-                <van-field
-                  v-model="registerForm.mobile"
-                  name="mobile"
-                  :placeholder="$t('auth.enterMobile')"
-                  type="tel"
-                  clearable
-                  class="custom-field"
-                  :rules="mobileRules"
-                />
-              </div>
-            </div>
-            
-            <!-- 密码 -->
-            <div class="input-wrapper">
-              <van-field
-                v-model="registerForm.password"
-                name="password"
-                :placeholder="$t('auth.enterPassword')"
-                :type="showRegisterPassword ? 'text' : 'password'"
-                left-icon="lock"
-                :right-icon="showRegisterPassword ? 'eye-o' : 'closed-eye'"
-                @click-right-icon="showRegisterPassword = !showRegisterPassword"
-                clearable
-                class="custom-field"
-                :rules="passwordRules"
-              />
-            </div>
-            
-            <!-- 确认密码 -->
-            <div class="input-wrapper">
-              <van-field
-                v-model="registerForm.confirmPassword"
-                name="confirmPassword"
-                :placeholder="$t('auth.confirmPasswordPlaceholder')"
-                :type="showConfirmPassword ? 'text' : 'password'"
-                left-icon="lock"
-                :right-icon="showConfirmPassword ? 'eye-o' : 'closed-eye'"
-                @click-right-icon="showConfirmPassword = !showConfirmPassword"
-                clearable
-                class="custom-field"
-                :rules="confirmPasswordRules"
-              />
-            </div>
-            
-            <!-- 邀请码（根据来源显示/隐藏） -->
-            <div class="input-wrapper" v-if="!hasInviteCodeFromUrl">
-              <van-field
-                v-model="registerForm.invite_code"
-                name="invite_code"
-                :placeholder="$t('auth.inviteCodePlaceholder')"
-                left-icon="gift-o"
-                clearable
-                class="custom-field"
-              />
-            </div>
-            
-            <!-- 隐藏的邀请码字段（当从URL获取时） -->
-            <van-field
-              v-if="hasInviteCodeFromUrl"
-              v-model="registerForm.invite_code"
-              name="invite_code"
-              style="display: none;"
-            />
-          </div>
-
-          <div class="agreement">
-            <van-checkbox v-model="agreed" class="custom-checkbox">
-              <span class="checkbox-text">
-                {{ $t('auth.agreementText') }}
-                <span class="link" @click="showAgreement">{{ $t('auth.userAgreement') }}</span>
-                {{ $t('auth.and') }}
-                <span class="link" @click="showPrivacy">{{ $t('auth.privacyPolicy') }}</span>
-              </span>
-            </van-checkbox>
-          </div>
-
-          <van-button 
-            type="primary" 
-            size="large" 
-            block 
-            :loading="loading"
-            native-type="submit"
-            class="submit-btn"
-          >
-            {{ $t('auth.register') }}
-          </van-button>
-        </van-form>
-      </div>
-
 
     </div>
   </div>
@@ -258,6 +86,7 @@ const userStore = useUserStore()
 const siteStore = useSiteStore()
 const mode = ref<'login' | 'register'>('login')
 const loginType = ref<'username' | 'mobile'>('username')
+const showLoginPassword = ref(false)
 const loading = ref(false)
 const rememberMe = ref(false)
 const agreed = ref(true)
@@ -286,219 +115,27 @@ onMounted(async() => {
   } else {
     mode.value = 'login'
   }
-  if(siteStore.banneList && siteStore.banneList.length) {
-    banners.value = siteStore.banneList
-  }else {
-    try {
-      // 轮播图（已由拦截器返回 data）
-      const adv = await getAdvertise() as any
-      banners.value = (adv || []).map((b: any, idx: number) => ({
-        id: idx + 1,
-        title: '',
-        subtitle: '',
-        image: b.image
-      }))
-      siteStore.setBannerList(banners.value)
-    } catch (_) {
-      console.error('获取轮播图失败')
-    }
-  }
-  // 检查是否有邀请码参数
-  if (route.query.invite_code) {
-    registerForm.invite_code = route.query.invite_code as string
-    hasInviteCodeFromUrl.value = true
-    // 如果有邀请码，自动切换到注册模式
-    if (mode.value === 'login') {
-      mode.value = 'register'
-    }
-  }
+
   
-  // 检查是否有 groupid 参数
-  if (route.query.groupid) {
-    registerForm.groupid = route.query.groupid as string
-  }
-  
-  // 检查是否有 trid 参数
-  if (route.query.trid) {
-    registerForm.trid = route.query.trid as string
-  }
-  
-  // 加载记住的密码
-  loadRememberedPassword()
+
 })
 
-// 加载记住的密码
-const loadRememberedPassword = () => {
-  const rememberedData = localStorage.getItem('rememberedLogin')
-  if (rememberedData) {
-    try {
-      const data = JSON.parse(rememberedData)
-      if (data.type === 'mobile') {
-        loginType.value = 'mobile'
-        loginForm.mobile = data.mobile || ''
-        loginForm.area_code = data.area_code || defaultAreaCode
-      } else {
-        loginType.value = 'username'
-        loginForm.username = data.username || ''
-      }
-      loginForm.password = data.password || ''
-      rememberMe.value = true
-    } catch (error) {
-      console.error('解析记住的密码数据失败:', error)
-    }
-  }
-}
-
-// 切换模式
-const switchMode = (newMode: 'login' | 'register') => {
-  mode.value = newMode
-  if (newMode === 'login') {
-    router.push({ name: 'Auth' })
-  } else {
-    router.push({ name: 'Auth', query: { mode: 'register' } })
-  }
-}
-
-// 切换登录类型
-const switchLoginType = (type: 'username' | 'mobile') => {
-  loginType.value = type
-  // 清空表单
-  if (type === 'username') {
-    loginForm.mobile = ''
-    loginForm.area_code = defaultAreaCode
-  } else {
-    loginForm.username = ''
-  }
-}
 
 // 登录表单
 const loginForm = reactive({
-  username: '',
-  mobile: '',
-  area_code: defaultAreaCode,
-  password: ''
+  agent_user: 'super_agent',
+  username: 'player001',
+  user_id: '12345',
+  currency: 'USDT'
 })
 
-// 密码显示状态
-const showLoginPassword = ref(false)
-const showRegisterPassword = ref(false)
-const showConfirmPassword = ref(false)
-
-// 是否有来自URL的邀请码
-const hasInviteCodeFromUrl = ref(false)
-
-// 注册表单
-const registerForm = reactive({
-  username: '',
-  area_code: defaultAreaCode,
-  mobile: '',
-  password: '',
-  confirmPassword: '',
-  invite_code: '',
-  groupid: '',
-  trid: '',
-  identifier:''
-})
-
-// 验证规则
-const usernameRules = [
-  { required: true, message: $t('auth.enterUsername') },
-  { 
-    validator: (val: string) => !val.includes(' '), 
-    message: $t('auth.usernameNoSpaces') 
-  },
-  { 
-    validator: (val: string) => val.length >= 3, 
-    message: $t('auth.usernameMinLength') 
-  }
-]
-
-const areaCodeRules = [
-  { required: true, message: $t('auth.enterAreaCode') },
-  { 
-    pattern: /^\+?\d{1,4}$/, 
-    message: $t('auth.enterCorrectAreaCode') 
-  }
-]
-
-const mobileRules = [
-  { required: true, message: $t('auth.enterMobile') },
-  { 
-    validator: (val: string) => validateMobileByAreaCode(val, registerForm.area_code),
-    message: $t('auth.enterCorrectMobile') 
-  }
-]
-
-const passwordRules = [
-  { required: true, message: $t('auth.enterPassword') },
-  { 
-    validator: (val: string) => val.length >= 6, 
-    message: $t('auth.passwordMinLength') 
-  }
-]
-
-const confirmPasswordRules = [
-  { required: true, message: $t('auth.confirmPassword') },
-  { 
-    validator: (val: string) => val === registerForm.password, 
-    message: $t('auth.passwordMismatch') 
-  }
-]
 
 
 // 登录处理
 const handleLogin = async () => {
-  // 验证必填字段
-  if (loginType.value === 'username') {
-    if (!loginForm.username || !loginForm.password) {
-      showToast($t('auth.fillCompleteInfo'))
-      return
-    }
-  } else {
-    if (!loginForm.mobile || !loginForm.area_code || !loginForm.password) {
-      showToast($t('auth.fillCompleteInfo'))
-      return
-    }
-    
-    // 验证手机号格式
-    if (!validateMobileByAreaCode(loginForm.mobile, loginForm.area_code)) {
-      showToast($t('auth.enterCorrectMobile'))
-      return
-    }
-    
-    // 验证区号格式
-    if (!/^\+?\d{1,4}$/.test(loginForm.area_code)) {
-      showToast($t('auth.enterCorrectAreaCode'))
-      return
-    }
-  }
-  
-  loading.value = true
+
   try {
-    if (loginType.value === 'username') {
-      // 用户名登录
-      await userStore.login(loginForm.username, loginForm.password)
-    } else {
-      // 手机号登录
-      await userStore.loginWithMobile(loginForm.mobile, loginForm.area_code, loginForm.password)
-    }
-    
-    // 处理记住密码
-    if (rememberMe.value) {
-      // 保存登录信息
-      const loginData = {
-        type: loginType.value,
-        username: loginForm.username,
-        mobile: loginForm.mobile,
-        area_code: loginForm.area_code,
-        password: loginForm.password
-      }
-      localStorage.setItem('rememberedLogin', JSON.stringify(loginData))
-    } else {
-      // 清除保存的登录信息
-      localStorage.removeItem('rememberedLogin')
-    }
-    
+    await userStore.login(loginForm)
     showToast($t('auth.loginSuccess'))
     router.push({ name: 'Home' })
   } catch (error) {
@@ -508,83 +145,7 @@ const handleLogin = async () => {
   }
 }
 
-// 注册处理
-const handleRegister = async () => {
-  // 验证必填字段
-  if (!registerForm.username || !registerForm.area_code || !registerForm.mobile || !registerForm.password || !registerForm.confirmPassword) {
-    showToast($t('auth.fillCompleteInfo'))
-    return
-  }
 
-  // 验证密码一致性
-  if (registerForm.password !== registerForm.confirmPassword) {
-    showToast($t('auth.passwordMismatch'))
-    return
-  }
-
-  // 验证用户名规则
-  if (registerForm.username.includes(' ')) {
-    showToast($t('auth.usernameNoSpaces'))
-    return
-  }
-
-  if (registerForm.username.length < 3) {
-    showToast($t('auth.usernameMinLength'))
-    return
-  }
-
-  // 验证区号格式
-  if (!/^\+?\d{1,4}$/.test(registerForm.area_code)) {
-    showToast($t('auth.enterCorrectAreaCode'))
-    return
-  }
-
-  // 验证手机号格式
-  if (!validateMobileByAreaCode(registerForm.mobile, registerForm.area_code)) {
-    showToast($t('auth.enterCorrectMobile'))
-    return
-  }
-
-  // 验证密码长度
-  if (registerForm.password.length < 6) {
-    showToast($t('auth.passwordMinLength'))
-    return
-  }
-
-  if (!agreed.value) {
-    showToast($t('auth.agreeTerms'))
-    return
-  }
-
-  loading.value = true
-  try {
-    // 调用注册API，传递所有必要信息
-    registerForm.identifier = siteStore.deviceId || localStorage.getItem('deviceId')
-    await userStore.register(
-      registerForm.username, 
-      registerForm.password, 
-      registerForm.invite_code,
-      registerForm.mobile,
-      registerForm.area_code,
-      registerForm.groupid || undefined,
-      registerForm.trid || undefined,
-      registerForm.identifier
-    )
-    // 设置标记，首页将弹出手机验证（仅此一次）
-    localStorage.setItem('need_mobile_verify', 'true')
-    showToast($t('auth.registerSuccess'))
-    router.push({ name: 'Home' })
-  } catch (error) {
-    showToast(error.msg || $t('auth.registerFailed'))
-  } finally {
-    loading.value = false
-  }
-}
-
-// 短信登录
-const handleSmsLogin = () => {
-  showToast($t('auth.smsLoginDeveloping'))
-}
 
 // 显示用户协议
 const showAgreement = () => {

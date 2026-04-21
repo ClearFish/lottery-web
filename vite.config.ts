@@ -68,7 +68,7 @@ export default defineConfig(({ mode }) => {
       // doc: https://github.com/pengzhanbo/vite-plugin-mock-dev-server
       proxy: {
         "^/api": {
-          target: "https://vib99.com/api",
+          target: "http://ec2-43-198-91-0.ap-east-1.compute.amazonaws.com:8081/api",
           changeOrigin: true,
           secure: true,
           rewrite: (path) => path.replace(/^\/api/, ''),
@@ -85,12 +85,12 @@ export default defineConfig(({ mode }) => {
           }
         },
         "^/addons": {
-          target: "https://vib99.com/",
+          target: "http://ec2-43-198-91-0.ap-east-1.compute.amazonaws.com:8081/",
           changeOrigin: true,
           secure: true
         },
         "^/uploads": {
-          target: "https://vib99.com/",
+          target: "http://ec2-43-198-91-0.ap-east-1.compute.amazonaws.com:8081/",
           changeOrigin: true,
           secure: true
         },

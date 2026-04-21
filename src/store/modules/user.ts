@@ -84,10 +84,10 @@ export const useUserStore = defineStore('user', () => {
     localStorage.setItem('token', newToken)
   }
 
-  const login = async (username: string, password: string) => {
+  const login = async (fromVal:any) => {
     try {
       const { login: loginApi } = await import('@/api/auth')
-      const response = await loginApi({ username, password }) as any
+      const response = await loginApi(fromVal) as any
       
       // HTTP拦截器已经处理了状态码判断，直接使用返回的数据
       setToken(response.token)

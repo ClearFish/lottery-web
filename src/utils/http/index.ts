@@ -47,7 +47,7 @@ class Http {
         // 不管什么请求方式，都将lang参数拼到URL后面
         config.params = {
           ...config.params,
-          lang: currentLang
+          // lang: currentLang
         };
         
         return config;
