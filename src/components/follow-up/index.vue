@@ -228,7 +228,7 @@ const getBetRecord=()=> {
 }
 const getResultRecord=()=> {
     resultRecord(params.value).then(async(res) => {
-        await userStore.fetchUserInfo()
+        // await userStore.fetchUserInfo()
         // 页面加在初始化中将结果数字
         if (game_type.value == 2) {
             if (k3Ref.value) {

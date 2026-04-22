@@ -11,7 +11,7 @@ onMounted(() => {
   console.log('app mounted')
   systemStore.getSysTime()
   systemStore.getInfo()
-  // systemStore.getGameConfig()
+  systemStore.getGame()
 })
 </script>
 <style></style>

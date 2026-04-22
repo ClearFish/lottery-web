@@ -349,7 +349,7 @@ const closeNicknameDialog = () => {
 const onNicknameSetSuccess = () => {
   showNicknameDialog.value = false
   // 刷新用户信息
-  userStore.fetchUserInfo()
+  // userStore.fetchUserInfo()
 }
 
 // 检查是否需要设置昵称

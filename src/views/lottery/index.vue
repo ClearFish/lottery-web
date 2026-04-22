@@ -484,7 +484,7 @@ const resetMusic =()=>{
 // 获取余额
 const getUserInfo = async()=>{
     showLoading.value = true
-    await userStore.fetchUserInfo()
+    // await userStore.fetchUserInfo()
     showLoading.value = false
 }
 const draw =(arr:any,key:any)=>{

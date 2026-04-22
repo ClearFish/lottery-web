@@ -34,8 +34,9 @@ class Http {
         // 自动添加token到请求头
         const token = localStorage.getItem('token');
         if (token) {
-          config.headers['token'] = token;
+          config.headers['Authorization'] = 'Bearer ' + token;
         }
+        
 
         if(config.url.includes('fileUpload') && config.headers['Content-Type'] !== ContentTypeEnum.FORM_URLENCODED) {
           config.headers['Content-Type'] = ContentTypeEnum.FORM_URLENCODED;

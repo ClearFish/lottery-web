@@ -223,9 +223,9 @@ export const useUserStore = defineStore('user', () => {
     token.value = savedToken
     isLoggedIn.value = true
     // 后台拉取最新用户信息（静默）
-    fetchUserInfo().catch(() => {
-      // 拉取失败保留token，稍后可重试
-    })
+    // fetchUserInfo().catch(() => {
+    //   // 拉取失败保留token，稍后可重试
+    // })
   }
 
   return {
