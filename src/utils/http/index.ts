@@ -68,12 +68,14 @@ class Http {
         const { code, msg, data } = response.data;
         // 判断请求是否成功
         const isSuccess = code === ResultEnum.SUCCESS;
+        console.log(response.data)
         if (isSuccess) {
           // if(data) {
           //   return data
           // }else {
           //   return response.data
           // }
+          
           return data;
         } else {
           // 处理请求错误

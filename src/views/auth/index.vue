@@ -4,7 +4,7 @@
       <!-- 登录表单 -->
       <div v-if="mode === 'login'" class="form-container">
         <van-form @submit="handleLogin" class="auth-form">
-          
+            
 
           <div class="form-group">
             <!-- 用户名登录 -->
@@ -73,24 +73,20 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted,watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { getAdvertise } from '@/api/slide'
 import { useUserStore } from '@/store/modules/user'
 import {useSiteStore} from "@/store/modules/site"
+import { useSystemStore } from '@/store/modules/system'
 import { showToast, showDialog } from 'vant'
 import { $t } from '@/locales'
-import headerLogo from "@/assets/header_logo.png"
 const router = useRouter()
 
 const route = useRoute()
 const userStore = useUserStore()
-const siteStore = useSiteStore()
+const systemStore = useSystemStore()
+console.log(systemStore.time)
 const mode = ref<'login' | 'register'>('login')
-const loginType = ref<'username' | 'mobile'>('username')
 const showLoginPassword = ref(false)
 const loading = ref(false)
-const rememberMe = ref(false)
-const agreed = ref(true)
-const banners = ref<any>([])
 const currentLocale = import.meta.env.VITE_LOCALE as string | undefined
 const localeAreaCodeMap: Record<string, string> = {
   yuenan: '+84',
@@ -134,7 +130,7 @@ const loginForm = reactive({
 
 // 登录处理
 const handleLogin = async () => {
-
+console.log(systemStore.time)
   try {
     await userStore.login(loginForm)
     showToast($t('auth.loginSuccess'))
