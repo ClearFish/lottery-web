@@ -77,7 +77,7 @@ class Http {
           //   return response.data
           // }
           
-          return data;
+          return response.data;
         } else {
           // 处理请求错误
           // showFailToast(message);

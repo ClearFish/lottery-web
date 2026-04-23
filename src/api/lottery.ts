@@ -3,9 +3,9 @@ import type { ApiResponse } from '@/types/api'
 
 export function getTimes(params:any): Promise<any[]> {
   return http.request({
-    url: '/addons/game/api/getTimes',
+    url: '/api/game/v1/game-time/'+params.game_code,
     method: 'get',
-    params
+    params:{}
   }) as Promise<any>
 }
 export function getGameAgentAlias(params:any): Promise<any[]> {
@@ -17,9 +17,9 @@ export function getGameAgentAlias(params:any): Promise<any[]> {
 }
 export function getGame(params:any): Promise<any[]> {
   return http.request({
-    url: '/addons/game/api/getGame',
+    url: '/api/game/v1/game-odds/'+params.game_code,
     method: 'get',
-    params
+    params:{}
   }) as Promise<any[]>
 }
 export function bet(data: any): Promise<ApiResponse<any>> {
@@ -70,4 +70,11 @@ export function periodBetRecord(data: any): Promise<ApiResponse<any>> {
     method: 'post',
     data
   })
+}
+export function gameResultsRecord(params:any): Promise<any[]> {
+  return http.request({
+    url: '/api/game/v1/game-results-record',
+    method: 'get',
+    params
+  }) as Promise<any[]>
 }

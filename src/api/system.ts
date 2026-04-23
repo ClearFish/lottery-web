@@ -22,3 +22,10 @@ export function getGameConfig(params?:any): Promise<any[]> {
     params
   }) as Promise<any>
 }
+export function getUserBalance(params?:any): Promise<any[]> {
+  return http.request({
+    url: '/api/game/v1/balance',
+    method: 'get',
+    params
+  }) as Promise<any>
+}

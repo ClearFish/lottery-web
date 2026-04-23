@@ -12,6 +12,7 @@ onMounted(() => {
   systemStore.getSysTime()
   systemStore.getInfo()
   systemStore.getGame()
+  systemStore.getBalance()
 })
 </script>
 <style></style>

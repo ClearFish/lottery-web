@@ -23,6 +23,7 @@
 				@upDataLog="getBetRecord" 
 				@cutAgent="cutAgent" 
 				:balances="Balances" 
+				:game_code="game_code"
 				:text="text1"
 				@music="setMusic"></win>
 			<d5 
@@ -35,6 +36,7 @@
 				@cutAgent="cutAgent" 
 				:balances="Balances"
 				:currentTime="current" 
+				
 				ref="d5Ref"
 				:text="text1"
 				@music="setMusic"></d5>
@@ -68,7 +70,7 @@
 					<div class="t-tr flex head flex-item-col-center">
 						<!-- 开奖历史 -->
 						<template v-if="tabAction==0">
-							<template v-if="game_type===0">
+							<template v-if="game_type==0">
 								<div class="flex-item-1 flex-rcc">{{$t('lottery.tableth1')}}</div>
 								<div class="flex-item-1 flex-rcc">{{$t('lottery.tableth2')}}</div>
 								<div class="flex-item-1 flex-rcc">{{$t('lottery.tableth3')}}</div>
@@ -107,7 +109,7 @@
 					<template v-if="tabAction==0">
 						<div class="t-tr tr flex flex-item-col-center" v-for="(item,key) in gameLog" :key="key">
 							<template v-if="game_type==0">
-								<div class="flex-item-1 flex-rcc">{{item.period}}</div>
+								<div class="flex-item-1 flex-rcc">{{item.issue_no}}</div>
 								<div class="flex-item-1 flex-rcc" :class="{'num_gcolor': [1,3,5,7,9].includes(Number(item.result[0])),'num_rcolor':[0,2,4,6,8].includes(Number(item.result[0]))}">{{item.result[0]}}</div>
 								<div class="flex-item-1 flex-rcc">{{Number(item.result[0])>4? $t('lottery.winGobig'): $t('lottery.winGosmall')}}</div>
 								<div class="flex-item-1 flex-rcc">
@@ -319,17 +321,25 @@ import Clock from "@/assets/game/clock.png"
 import ClockChosed from "@/assets/game/clock_chosed.png"
 import Music1 from "@/assets/game/di1.mp3"
 import Music2 from "@/assets/game/di2.mp3"
-import { resultRecord, betRecord } from '@/api/lottery'
+import { gameResultsRecord, betRecord } from '@/api/lottery'
 import miment from 'miment'
 import { ref, computed, onMounted, nextTick, onUnmounted,watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/store/modules/user'
+import { useSystemStore } from '@/store/modules/system' 
 import { showToast } from 'vant'
 import { $t } from '@/locales'
+
+const iframeInfo = {
+	game_code: 'Color10m',
+	game_type: '0',
+}
 
 const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
+
+const systemStore = useSystemStore() 
 
 const noThree:any= ref(false)// 是否不展示三分彩
 const isThree:any= ref(false)// 是否只展示三分彩
@@ -346,7 +356,7 @@ const gameType:any= ref([{value: 1,label: '1'},{value: 3,label: '3'},{value: 5,l
 const tabAction:any= ref(0)
 const gameLog:any= ref([])
 const betRecordList:any= ref([])
-const params:any= ref({ game_id: 0,pageIndex: 1,pageSize: 10})// 开奖历史
+const params:any= ref({ game_code: iframeInfo.game_code,page: 1,pageSize: 20})// 开奖历史
 const betParams:any= ref({game_id: 0,pageIndex: 1,pageSize: 10})
 const audioAction:any= ref({method: 'pause'})
 const Balances:any= ref([])
@@ -365,6 +375,7 @@ const k3Ref:any = ref(null)
 const winRef:any = ref(null)
 const d5Ref:any = ref(null)
 const activeCollapse = ref(null)
+const game_code = ref('')
 
 const time = ()=>{
     let num = 60000
@@ -372,14 +383,15 @@ const time = ()=>{
     return num
 }
 onMounted(()=>{
+	console.log(systemStore.gameConfig,333)
     const option = route.query as any;
-    game_type.value = Number(option.game_type) || '0'//Number(option.type)
+    game_type.value = Number(iframeInfo.game_type) || '0'//Number(option.type)
 	// ?game_id=1&game_type=0&gameMin=1
     game_id.value = option.game_id  || '1'
-    params.value.game_id = game_id.value ||'0'
+	game_code.value = iframeInfo.game_code || 'Color1m'
+    params.value.game_code = iframeInfo.game_code ||'Color1m'
     betParams.value.game_id = game_id.value || '1'
-    getResultRecord(1)
-    // this.getBetRecord()
+    getResultRecord()
     createMusic()
     if(option.min){
         current.value = Number(option.min) || '1'
@@ -414,8 +426,8 @@ const prevPage = ()=>{
     }
 }
 const nextPage = ()=>{
-    if(params.value.pageIndex <total.value) {
-        params.value.pageIndex ++;
+    if(params.value.page <total.value) {
+        params.value.page ++;
         handlePageChange()
     }
 }
@@ -561,9 +573,14 @@ const cutTime=(key:any)=>{
 }
 // 游戏开奖记录
 const getResultRecord = async(type?:any)=>{
-    resultRecord(params.value).then((res:any)=>{
-        gameLog.value = res.rows
-        total.value = res.total
+	let param = {
+		game_code:game_code.value,
+		page:params.value.page,
+		pageSize:params.value.pageSize,
+	}
+    gameResultsRecord(param).then((res:any)=>{
+        gameLog.value = res.data
+        total.value = res.meta.total
         getUserInfo();
         // 页面加在初始化中将结果数字  
         if(type == 1) {
@@ -583,11 +600,11 @@ const getResultRecord = async(type?:any)=>{
 }
 //用户下注数据
 const getBetRecord =()=>{
-    betRecord(betParams.value).then((res:any) =>{
-        betRecordList.value = res.rows
-        total.value = res.total
-        getUserInfo()
-    })
+    // betRecord(betParams.value).then((res:any) =>{
+    //     betRecordList.value = res.rows
+    //     total.value = res.total
+    //     getUserInfo()
+    // })
 }
 
 

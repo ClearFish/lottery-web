@@ -36,7 +36,7 @@
 		<div class="time-box">
 			<div class="info flex flex-col">
 				<div class="txt">{{gameType[currentTime].label}}{{$t("lottery.gameunit")}}</div>
-				<div class="num">{{gameTime.period}}</div>
+				<div class="num">{{gameTime.issue_no}}</div>
 			</div>
 			<div class="out flex flex-col">
 				<div class="txt">{{
@@ -187,6 +187,8 @@ import Trend from "@/components/follow-up/trend.vue"
 const userStore = useUserStore() 
 import BetInfo from "./betInfoDialog.vue"
 
+
+
 const props = defineProps({
 	gameId:{
         default: () => {
@@ -212,7 +214,12 @@ const props = defineProps({
         default: () => {
             return true;
         }
-    }
+    },
+	game_code:{
+		default: () => {
+            return '' as any;
+        }
+	}
 })
 
 const timer = ref(null);
@@ -292,7 +299,7 @@ const randomNumber=()=>{
 }
 // 获取游戏信息
 const getGameData=()=>{
-	getGame({game_id: props.gameId}).then(res =>{
+	getGame({game_code: props.game_code}).then(res =>{
 		gameInfo.value = res
 		if(userFollow.value) {
 			// 用户跟投
@@ -306,7 +313,7 @@ const getGameData=()=>{
 			}
 			select( info.play_group, info.bet_play, betNum[info.bet_play] ? betNum[info.bet_play] : Number(info.bet_play))
 		}
-		getGameAgentList()
+		// getGameAgentList()
 	})
 }
 		
@@ -319,9 +326,10 @@ const getGameAgentList=()=>{
 		
 // 游戏开奖时间
 const getTime=(isEnd?:boolean)=>{
-	getTimes({game_id: props.gameId}).then((res:any)=>{
-		gameTime.value = res
-		form.value.period = res.period
+	getTimes({game_code: props.game_code}).then((res:any)=>{
+		console.log(res,"2223")
+		gameTime.value = res.data
+		form.value.period = res.issue_no
 		/**
 		 * // 上期开始封盘，本期投注时间开始
 			"open_time": "2023-01-23 09:33:00",
@@ -340,9 +348,9 @@ const getTime=(isEnd?:boolean)=>{
 			"current_time": "2025-12-02 14:42:25"
 		 */
 		if(isEnd){ // 倒计时结束查结果更新记录
-			getResultData(gameTime.value.previous_period)
+			// getResultData(gameTime.value.previous_period)
 		}else {
-			comOpenTime(gameTime.value.current_time,gameTime.value.end_time)
+			comOpenTime(gameTime.value.current_time,gameTime.value.exit_time)
 		}
 	})
 }
