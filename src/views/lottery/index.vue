@@ -4,54 +4,46 @@
 		<div class="game-betting">
 			<div class="tab">
 				<div class="box flex-sb">
-					<div v-for="(item,key) in gameType" :key="key" class="flex-cc  itemInfo" :class=" current===key ? 'activeItem' : ''" @click="cutTime(key)">
-						<img :src="ClockChosed" v-if="current===key"/>
+					<div v-for="(item,key) in gameType" 
+						:key="key" 
+						class="flex-cc  itemInfo" 
+						:class=" current==key ? 'activeItem' : ''" 
+						@click="cutTime(key)">
+						<img :src="ClockChosed" v-if="current==key"/>
 						<img :src="Clock" v-else/>
-						<span class="text" :class="current===key ? 'chosesd_text' :''">{{item.label}}{{$t('lottery.gameunit')}}</span>
+						<span class="text" :class="current==key ? 'chosesd_text' :''">{{item.label}}{{$t('lottery.gameunit')}}</span>
 					</div>
 				</div>
 			</div>
 			<win 
-				v-if="game_type==0" 
-				:noThree="noThree" 
+				v-if="game_type==0"
 				:isFollow="false"
 				ref="winRef"
-				:game-id="params.game_id" 
 				:currentTime="current" 
 				@openRule="isRule=true" 
 				@updata="getResultRecord" 
 				@upDataLog="getBetRecord" 
-				@cutAgent="cutAgent" 
-				:balances="Balances" 
-				:game_code="game_code"
-				:text="text1"
+				:balances="Balances"
 				@music="setMusic"></win>
 			<d5 
 				v-if="game_type==1" 
-				:game-id="params.game_id" 
 				:isFollow="false" 
 				@openRule="isRule=true" 
 				@updata="getResultRecord" 
-				@upDataLog="getBetRecord" 
-				@cutAgent="cutAgent" 
+				@upDataLog="getBetRecord"
 				:balances="Balances"
 				:currentTime="current" 
-				
 				ref="d5Ref"
-				:text="text1"
 				@music="setMusic"></d5>
 			<k3 
-				v-if="game_type==2" 
-				:game-id="params.game_id" 
+				v-if="game_type==2"
 				:isFollow="false"
 				@openRule="isRule=true" 
 				@updata="getResultRecord" 
 				@upDataLog="getBetRecord" 
 				:currentTime="current"
-				@cutAgent="cutAgent" 
 				:balances="Balances"
 				ref="k3Ref"
-				:text="text1"
 				@music="setMusic"></k3>
 		</div>
 		
@@ -92,7 +84,7 @@
 						</template>
 						
 						<template v-else-if="tabAction==1">
-							<template v-if="[0,1].includes(game_type)">
+							<template v-if="[0,1].includes(Number(game_type))">
 								<div class="flex-item-1 flex-rcc">{{$t('lottery.tableth1')}}</div>
 								<div class="flex-item-2 flex-rcc">{{$t('lottery.popupcell3')}}</div>
 							</template>
@@ -145,7 +137,7 @@
 					</template>
 					<template v-else-if="tabAction==1">
 						<div class="t-tr tr flex flex-item-col-center" v-for="(item,key) in gameLog" :key="key">
-							<div class="flex-item-1 flex-rcc">{{item.period}}</div>
+							<div class="flex-item-1 flex-rcc">{{item.issue_no}}</div>
 							<template v-if="game_type==0">
 								<div class="flex-item-2 flex-rcc" style="position: relative;">
 									<div v-for="(i,key) in 10" 
@@ -166,10 +158,10 @@
 										v-if="key<9" 
 										style="    
 										position: absolute;
-										width: 200px;
+										width: 225px;
 										height: 30px;
 										top: 18px;
-										left: 10px;
+										left: 0;
 										z-index: 999;"
 									>
 										<canvas style="width: 100%; height: 100%;" :canvas-id="'firstCanvas'+key" :id="'firstCanvas'+key" @error="canvasIdErrorCallback"></canvas>
@@ -322,42 +314,30 @@ import ClockChosed from "@/assets/game/clock_chosed.png"
 import Music1 from "@/assets/game/di1.mp3"
 import Music2 from "@/assets/game/di2.mp3"
 import { gameResultsRecord, betRecord } from '@/api/lottery'
-import miment from 'miment'
 import { ref, computed, onMounted, nextTick, onUnmounted,watch } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useUserStore } from '@/store/modules/user'
 import { useSystemStore } from '@/store/modules/system' 
-import { showToast } from 'vant'
 import { $t } from '@/locales'
 
-const iframeInfo = {
-	game_code: 'Color10m',
-	game_type: '0',
-}
-
-const router = useRouter()
-const route = useRoute()
-const userStore = useUserStore()
 
 const systemStore = useSystemStore() 
 
-const noThree:any= ref(false)// 是否不展示三分彩
-const isThree:any= ref(false)// 是否只展示三分彩
 const isPlay:any= ref(true)// 是否播放音乐
-const game_id:any= ref('')// 路由初始游戏id
 const game_type:any= ref('0')// 游戏类型
 const isRule:any= ref(false)
 const tabCurrent:any= ref(0)
 const current:any= ref(0)
-const rate:any= ref(1)
 const tabList:any= ref(['A','B','C','D','E'])
-const text1:any= ref('')
-const gameType:any= ref([{value: 1,label: '1'},{value: 3,label: '3'},{value: 5,label: '5'},{value: 10,label: '10'}])
+const gameType:any= ref([
+	{value: 1,label: '1',gameids:[1,5,9]},
+	{value: 3,label: '3',gameids:[2,6,10]},
+	{value: 5,label: '5',gameids:[3,7,11]},
+	{value: 10,label: '10',gameids:[4,8,12]}
+])
 const tabAction:any= ref(0)
 const gameLog:any= ref([])
 const betRecordList:any= ref([])
-const params:any= ref({ game_code: iframeInfo.game_code,page: 1,pageSize: 20})// 开奖历史
-const betParams:any= ref({game_id: 0,pageIndex: 1,pageSize: 10})
+const params:any= ref({ game_code: systemStore.game_code,page: 1,pageSize: 10})// 开奖历史
+const betParams:any= ref({game_code: systemStore.game_code,page: 1,pageSize: 10})
 const audioAction:any= ref({method: 'pause'})
 const Balances:any= ref([])
 const total:any= ref(0)
@@ -367,45 +347,29 @@ const music1:any=ref(null)
 const music2:any=ref(null)
 const playing:any=ref(false)
 const initNumber:any=ref(10)
-const unread_total:any=ref(0)
 const showLoading:any=ref(false)
-const lang:any=ref('yuenan')
-const tab:any=ref([$t('lottery.tab1'),$t('lottery.tab2'),$t('lottery.tab3')]);
+const tab:any=ref([
+	$t('lottery.tab1'),
+	$t('lottery.tab2'),
+	$t('lottery.tab3')
+]);
 const k3Ref:any = ref(null)
 const winRef:any = ref(null)
 const d5Ref:any = ref(null)
 const activeCollapse = ref(null)
-const game_code = ref('')
-
-const time = ()=>{
-    let num = 60000
-    num = gameType.value[current.value].value * 60000
-    return num
-}
+const wingoGameCode = ['Color1m','Color3m','Color5m','Color10m']
+const lotre5DGameCode = ['Lotre5D1m','Lotre5D3m','Lotre5D5m','Lotre5D10m']
+const k3GameCode = ['K3Lotre1m','K3Lotre3m','K3Lotre5m','K3Lotre10m']
 onMounted(()=>{
 	console.log(systemStore.gameConfig,333)
-    const option = route.query as any;
-    game_type.value = Number(iframeInfo.game_type) || '0'//Number(option.type)
-	// ?game_id=1&game_type=0&gameMin=1
-    game_id.value = option.game_id  || '1'
-	game_code.value = iframeInfo.game_code || 'Color1m'
-    params.value.game_code = iframeInfo.game_code ||'Color1m'
-    betParams.value.game_id = game_id.value || '1'
+	let gameInfo = systemStore.gameConfig.find((item:any)=>item.game_code == systemStore.game_code)
+	console.log(gameInfo,444)
+    params.value.game_code = systemStore.game_code ||'Color1m'
+    betParams.value.game_code = systemStore.game_code || '1'
     getResultRecord()
     createMusic()
-    if(option.min){
-        current.value = Number(option.min) || '1'
-        isThree.value = true
-    }
-    if(option.noThree){
-        noThree.value = true
-        gameType.value.splice(1,1)
-    }
-    if(option.gameMin) {
-        let minIndex = gameType.value.findIndex(item=>item.value == option.gameMin);
-        current.value = minIndex;
-        cutTime(minIndex)
-    }
+	current.value = gameType.value.findIndex((item:any)=>item.gameids.indexOf(gameInfo.id)!=-1)
+	console.log(current.value,555)
     const userAgent = navigator.userAgent.toLowerCase();
     if (/ipad|iphone|midp|rv:1.2.3.4|ucweb|android|windows ce|windows mobile/.test(userAgent)) {
         // 移动端
@@ -414,14 +378,23 @@ onMounted(()=>{
         // pc端
         initNumber.value = 70
     }
+
+	// 游戏类型
+	if(wingoGameCode.includes(gameInfo.game_code)){
+		game_type.value = '0'
+	}else if(lotre5DGameCode.includes(gameInfo.game_code)){
+		game_type.value = '1'
+	}else if(k3GameCode.includes(gameInfo.game_code)){
+		game_type.value = '2'
+	}
 })
 onUnmounted(()=>{
     resetMusic()
 })
 
 const prevPage = ()=>{
-    if(params.value.pageIndex > 1) {
-        params.value.pageIndex --;
+    if(params.value.page > 1) {
+        params.value.page --;
         handlePageChange()
     }
 }
@@ -438,13 +411,7 @@ const handlePageChange =()=>{
         getBetRecord()
     }
 }
-// 切换代理
-const cutAgent=(item:any)=>{
-    params.value.game_id = item.game_id
-    betParams.value.game_id = item.game_id
-    getBetRecord()
-    getResultRecord()
-}
+
 const createMusic =()=>{
     music1.value = new Audio();
     music1.value.src = Music1
@@ -501,18 +468,18 @@ const getUserInfo = async()=>{
 }
 const draw =(arr:any,key:any)=>{
     nextTick(()=>{
-		if(key) {
+		if(key!==undefined) {
 			arr.map((v,index)=>{
-				let mn = initNumber.value + Number(v.result[key])*28
+				let mn = initNumber.value + Number(v.result[key])*31
+				console.log(mn)
 				if(index<9){
-					let ln = initNumber.value + Number(arr[index+1].result[key])*28
+					let ln = initNumber.value + Number(arr[index+1].result[key])*31
 					let canvas:any = document.getElementById(`firstCanvas${index}`)
 					let ctx = canvas.getContext('2d')
 					ctx.strokeStyle = '#fb4e4e'
-					ctx.lineWidth  = 6
-					console.log(mn,ln)
-					ctx.moveTo(mn, 0)
-					ctx.lineTo(ln, 128)
+					ctx.lineWidth  = 4
+					ctx.moveTo(mn, 16)
+					ctx.lineTo(ln, 168)
 					ctx.stroke()
 				}
 				
@@ -526,11 +493,10 @@ const changeMenu=(index:any)=>{
     draw(gameLog.value,index)
 }
 const cutTab=(index:any)=>{
-    betParams.value.pageIndex = 1
-    params.value.pageIndex = 1
+    betParams.value.page = 1
+    params.value.page = 1
     tabAction.value=index
-    tabCurrent.value = 0
-    // this.$refs.pageRef && this.$refs.pageRef.setPageIndex(1)	
+    tabCurrent.value = 0	
     if(index===2){
         getBetRecord()
     }else {
@@ -542,28 +508,11 @@ const canvasIdErrorCallback=(err)=>{
 }
 // 时间切换游戏类型
 const cutTime=(key:any)=>{
-    betParams.value.pageIndex = 1
-    params.value.pageIndex = 1
+    betParams.value.page = 1
+    params.value.page = 1
     current.value = key
-    let game_id = 0
-    // this.$refs.pageRef && this.$refs.pageRef.setPageIndex(1)	
-    if(game_type.value===0){
-        if(noThree.value){ // 不展示三分彩
-            if(key===0){
-                game_id = 1
-            }else{
-                game_id = key + 2
-            }
-        }else{
-            game_id = key+1
-        }
-    }else if(game_type.value===1){
-        game_id = 8 + key+1
-    }else{
-        game_id = 4 + key+1
-    }
-    params.value.game_id = game_id
-    betParams.value.game_id = game_id
+    params.value.game_code = systemStore.game_code
+    betParams.value.game_code = systemStore.game_code
     if(tabAction.value!==2){
         getResultRecord(1)
     }else{
@@ -574,7 +523,7 @@ const cutTime=(key:any)=>{
 // 游戏开奖记录
 const getResultRecord = async(type?:any)=>{
 	let param = {
-		game_code:game_code.value,
+		game_code:systemStore.game_code,
 		page:params.value.page,
 		pageSize:params.value.pageSize,
 	}
@@ -584,27 +533,27 @@ const getResultRecord = async(type?:any)=>{
         getUserInfo();
         // 页面加在初始化中将结果数字  
         if(type == 1) {
-        if(k3Ref.value) {
-            k3Ref.value.setAnimation()
-            k3Ref.value.getCurrentIssueWinNumber(res.rows[0].result)
-            k3Ref.value.setRecentRes(res.rows[0]);
-        }
-        if(d5Ref.value) {
-            d5Ref.value.start(res.rows[0].result)
-        }
-        if(winRef.value) {
-            winRef.value.setRecentRes(res.rows[0]);
-        }
+			if(k3Ref.value) {
+				k3Ref.value.setAnimation()
+				k3Ref.value.getCurrentIssueWinNumber(res.rows[0].result)
+				k3Ref.value.setRecentRes(res.rows[0]);
+			}
+			if(d5Ref.value) {
+				d5Ref.value.start(res.rows[0].result)
+			}
+			if(winRef.value) {
+				winRef.value.setRecentRes(res.rows[0]);
+			}
         }
     })
 }
 //用户下注数据
 const getBetRecord =()=>{
-    // betRecord(betParams.value).then((res:any) =>{
-    //     betRecordList.value = res.rows
-    //     total.value = res.total
-    //     getUserInfo()
-    // })
+    betRecord(betParams.value).then((res:any) =>{
+        betRecordList.value = res.rows
+        total.value = res.total
+        getUserInfo()
+    })
 }
 
 
@@ -627,7 +576,7 @@ const sumWin=(value:any)=>{
 watch(
     () => gameLog.value, (nV:any, oV:any) => {
 		if(nV){
-			if(game_type.value===1 && tabAction.value===1){
+			if(game_type.value == 1 && tabAction.value == 1){
 				draw(nV,tabCurrent.value)
 			}else{
 				draw(nV,0)
@@ -663,7 +612,7 @@ watch(
 }
 .can-box{
     position: absolute;
-    width: 200px;
+    width: 250px;
     height: 30px;
     top: 18px;
     left: 10px;

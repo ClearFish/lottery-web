@@ -22,6 +22,14 @@ export interface toRouteType extends RouteLocationNormalized {
 }
 
 router.beforeEach((to: toRouteType, from, next) => {
+  if(to.query.token){
+    localStorage.setItem('token',to.query.token as string)
+    localStorage.setItem('game_code',to.query.game_code as string)
+    next({
+        path: "/",
+    })
+    return;
+  }
   NProgress.start();
   // 路由缓存
   useCachedViewStoreHook().addCachedView(to);

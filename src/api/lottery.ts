@@ -36,12 +36,19 @@ export function getResult(params:any): Promise<any[]> {
     params
   }) as Promise<any[]>
 }
-export function betRecord(data: any): Promise<ApiResponse<any>> {
-  return http.request<ApiResponse<any>>({
-    url: '/addons/game/api/betRecord',
-    method: 'post',
-    data
-  })
+// export function betRecord(data: any): Promise<ApiResponse<any>> {
+//   return http.request<ApiResponse<any>>({
+//     url: '/api/game/v1/game-history-record',
+//     method: 'post',
+//     data
+//   })
+// }
+export function betRecord(params:any): Promise<any[]> {
+  return http.request({
+    url: '/api/game/v1/game-history-record',
+    method: 'get',
+    params
+  }) as Promise<any[]>
 }
 export function resultRecord(data: any): Promise<ApiResponse<any>> {
   return http.request<ApiResponse<any>>({

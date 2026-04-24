@@ -8,12 +8,12 @@ export const useSystemStore = defineStore('system', ()=>{
     const gameConfig = ref<any>([])
     const balance = ref<any>({})
     const loading = ref(false)
+    const game_code = ref(localStorage.getItem('game_code') || '')
     
     const getSysTime = async()=>{
         try {
             loading.value = true
             let res = await getTime()
-            console.log(res,"123")
             time.value = res.data
         } catch (error) {
             console.error('获取时间失败:', error)
@@ -26,7 +26,6 @@ export const useSystemStore = defineStore('system', ()=>{
         try {
             loading.value = true
             let res = await getSystemInfo()
-            console.log(res,"123")
             systemInfo.value = res.data
         } catch (error) {
             console.error('获取系统信息失败:', error)
@@ -39,13 +38,16 @@ export const useSystemStore = defineStore('system', ()=>{
         try {
             loading.value = true
             let res = await getGameConfig()
-            console.log(res,"123")
             gameConfig.value = res.data
         } catch (error) {
             console.error('获取游戏配置失败:', error)
         } finally {
             loading.value = false
         }
+    }
+
+    const setGameCode = (code:string)=>{
+        game_code.value = code
     }
 
     const getBalance = async()=>{
@@ -66,7 +68,9 @@ export const useSystemStore = defineStore('system', ()=>{
         systemInfo: computed(()=>  systemInfo.value),
         gameConfig: computed(()=>  gameConfig.value),
         balance: computed(()=>  balance.value),
+        game_code: computed(()=>  game_code.value),
 
+        setGameCode,
         getSysTime,
         getInfo,
         getGame,

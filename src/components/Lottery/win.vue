@@ -176,7 +176,7 @@
 
 <script setup lang="ts">
 import miment from 'miment'
-import { ref, defineEmits, watch } from "vue"
+import { ref, defineEmits, watch,defineExpose,onMounted,computed } from "vue"
 import { getTimes, getGame, bet, getResult, getGameAgentAlias } from '@/api/lottery'
 import { showToast } from 'vant'
 import { $t } from '@/locales'
@@ -186,16 +186,11 @@ import randomIcon from "@/assets/lottery/random.svg"
 import Trend from "@/components/follow-up/trend.vue"
 const userStore = useUserStore() 
 import BetInfo from "./betInfoDialog.vue"
-
-
+import { useSystemStore } from '@/store/modules/system'
+const systemStore = useSystemStore()
 
 const props = defineProps({
 	gameId:{
-        default: () => {
-            return '' as any;
-        }
-    },
-	currentTime:{
         default: () => {
             return '' as any;
         }
@@ -215,20 +210,20 @@ const props = defineProps({
             return true;
         }
     },
-	game_code:{
-		default: () => {
-            return '' as any;
-        }
-	}
 })
-
+const game_code = computed(()=>systemStore.game_code)
 const timer = ref(null);
 const popupTitle = ref('');
 const show = ref(false)
 const time = ref(null)
 const countdownTime:any = ref({});
 const timeData:any = ref({})
-const gameType = ref([{value: 1,label: '1'},{value: 3,label: '3'},{value: 5,label: '5'},{value: 10,label: '10'}])
+const gameType = ref([
+	{value: 1,label: '1',gameids:[1,5,9]},
+	{value: 3,label: '3',gameids:[2,6,10]},
+	{value: 5,label: '5',gameids:[3,7,11]},
+	{value: 10,label: '10',gameids:[4,8,12]}
+])
 const rateList = ref([1,3,9,27,81,243,729])
 const form:any = ref(
 	{
@@ -256,6 +251,7 @@ const rate = ref(1)
 const agree = ref([1])
 const styleColor = ref('green')
 const gameInfo:any = ref({})
+const game_id = ref(null)
 const gameTime:any = ref({})
 const winInfo = ref({})
 const randomNum = ref(null)
@@ -271,6 +267,7 @@ const trendRef = ref(null)
 const betInfo = ref(null)
 const countDownBet = ref(null)
 const resultTimer = ref(null)
+const currentTime = ref(0)
 
 const emit = defineEmits(["showLotteryResult","updata","upDataLog","openRule"]);
 const showLotteryResult=()=> {
@@ -299,7 +296,7 @@ const randomNumber=()=>{
 }
 // 获取游戏信息
 const getGameData=()=>{
-	getGame({game_code: props.game_code}).then(res =>{
+	getGame({game_code: game_code.value}).then(res =>{
 		gameInfo.value = res
 		if(userFollow.value) {
 			// 用户跟投
@@ -326,8 +323,7 @@ const getGameAgentList=()=>{
 		
 // 游戏开奖时间
 const getTime=(isEnd?:boolean)=>{
-	getTimes({game_code: props.game_code}).then((res:any)=>{
-		console.log(res,"2223")
+	getTimes({game_code: game_code.value}).then((res:any)=>{
 		gameTime.value = res.data
 		form.value.period = res.issue_no
 		/**
@@ -442,7 +438,7 @@ const onChange=(e)=> {
 	timeData.value = e
 	timeData.value.seconds1 = arr[0]
 	timeData.value.seconds2 = arr[1];
-	if(arr[0] == '0' && arr[1]<6) {
+	if(e.minutes == 0 && e.seconds <6) {
 		showMask.value = true;
 		if(show.value) {
 			show.value = false
@@ -450,15 +446,14 @@ const onChange=(e)=> {
 	}else {
 		showMask.value = false
 	}
-	if(arr[0] == '0' && arr[1] == '0') {
+	if(e.minutes == 0 && e.seconds == 0 && arr[0] == '0' && arr[1] == '0') {
 		showMask.value = false
 	}
 }
 // 投注时间计时结束事件
 const finish=()=>{
 	resetCountDown()
-	getTime(true)
-	//countDownBet.value.reset();
+	// getTime(true)
 	
 }
 const resetCountDown = ()=>{
@@ -468,7 +463,7 @@ const resetCountDown = ()=>{
         3:1000*60*5,
         4:1000*60*10
     }
-    time.value = numeGameid[props.gameId]
+    time.value = numeGameid[game_id.value]
 	countDownBet.value && countDownBet.value.reset()
 }	
 // 选择数字
@@ -551,6 +546,9 @@ const init=()=>{
 		form.value.size = 1
 		showMask.value = false
 	}
+	let gameInfo = systemStore.gameConfig.find((item:any)=>item.game_code == systemStore.game_code)
+	game_id.value = gameInfo.id
+	currentTime.value = gameType.value.findIndex((item:any)=>item.gameids.indexOf(gameInfo.id)!=-1)
 }
 const cancel=()=>{
 	init()
@@ -566,16 +564,12 @@ const comOpenTime=(start,end)=>{
 	console.log(time.value,"time.value")
 	console.timeEnd()
 }
-watch(
-    ()=>props.gameId, (newV:any,oldV:any) => {
-        if (newV) {
-            form.value.game_id = newV;
-            init();
-            getGameData();
-            getTime();
-        }
-    },{immediate: true}
-)
+onMounted(()=>{
+	init()
+	getGameData()
+	getTime()
+})
+
 watch(
     ()=>props.noThree, (newV:any,oldV:any) => {
         if(newV){

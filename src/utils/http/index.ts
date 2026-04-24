@@ -69,7 +69,6 @@ class Http {
         const { code, msg, data } = response.data;
         // 判断请求是否成功
         const isSuccess = code === ResultEnum.SUCCESS;
-        console.log(response.data)
         if (isSuccess) {
           // if(data) {
           //   return data
@@ -99,17 +98,17 @@ class Http {
             // token过期，清除本地token
             localStorage.removeItem('token');
             // 清除登录用户的IM链接缓存
-            try {
-              import('@/utils/im-cache').then(({ clearUserIMCache }) => {
-                clearUserIMCache();
-              });
-            } catch (error) {
-              console.error('清除IM缓存失败:', error);
-            }
+            // try {
+            //   import('@/utils/im-cache').then(({ clearUserIMCache }) => {
+            //     clearUserIMCache();
+            //   });
+            // } catch (error) {
+            //   console.error('清除IM缓存失败:', error);
+            // }
             // 跳转到登录页面
-            if (window.location.hash !== '#/auth') {
-              window.location.href = '#/auth';
-            }
+            // if (window.location.hash !== '#/auth') {
+            //   window.location.href = '#/auth';
+            // }
             break;
           case 403:
             message = $t('http.forbidden');
