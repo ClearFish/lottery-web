@@ -366,7 +366,7 @@ onMounted(()=>{
 	console.log(gameInfo,444)
     params.value.game_code = systemStore.game_code ||'Color1m'
     betParams.value.game_code = systemStore.game_code || '1'
-    getResultRecord()
+    getResultRecord(1)
     createMusic()
 	current.value = gameType.value.findIndex((item:any)=>item.gameids.indexOf(gameInfo.id)!=-1)
 	console.log(current.value,555)
@@ -535,14 +535,14 @@ const getResultRecord = async(type?:any)=>{
         if(type == 1) {
 			if(k3Ref.value) {
 				k3Ref.value.setAnimation()
-				k3Ref.value.getCurrentIssueWinNumber(res.rows[0].result)
-				k3Ref.value.setRecentRes(res.rows[0]);
+				k3Ref.value.getCurrentIssueWinNumber(res.data[0].result)
+				k3Ref.value.setRecentRes(res.data[0]);
 			}
 			if(d5Ref.value) {
-				d5Ref.value.start(res.rows[0].result)
+				d5Ref.value.start(res.data[0].result)
 			}
 			if(winRef.value) {
-				winRef.value.setRecentRes(res.rows[0]);
+				winRef.value.setRecentRes(res.data[0]);
 			}
         }
     })

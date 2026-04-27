@@ -36,6 +36,7 @@ export function getResult(params:any): Promise<any[]> {
     params
   }) as Promise<any[]>
 }
+
 // export function betRecord(data: any): Promise<ApiResponse<any>> {
 //   return http.request<ApiResponse<any>>({
 //     url: '/api/game/v1/game-history-record',
@@ -83,5 +84,14 @@ export function gameResultsRecord(params:any): Promise<any[]> {
     url: '/api/game/v1/game-results-record',
     method: 'get',
     params
+  }) as Promise<any[]>
+}
+
+// 按游戏代码和期数查询 api/game/v1/game-result
+export function getResultByGameCodeAndPeriod(params:any): Promise<any[]> {
+  return http.request({
+    url: '/api/game/v1/game-result/'+params.game_code+'/'+params.issue_no,
+    method: 'get',
+    params:{}
   }) as Promise<any[]>
 }

@@ -3,7 +3,7 @@
 		<div class="recently">
 			<div class="container" v-if="recentReuslt &&  recentReuslt.result &&  recentReuslt.result.length">
 				<div class="peroid">
-					<div>{{recentReuslt.period}}</div>
+					<div>{{recentReuslt.issue_no}}</div>
 					<div class="showMore" @click="showLotteryResult" v-if="isFollow">{{$t("fllowup.More")}}</div>
 					<div class="showMore trend" @click="showTrend">
 						<img :src="trendIcon" alt="">
@@ -177,7 +177,7 @@
 <script setup lang="ts">
 import miment from 'miment'
 import { ref, defineEmits, watch,defineExpose,onMounted,computed } from "vue"
-import { getTimes, getGame, bet, getResult, getGameAgentAlias } from '@/api/lottery'
+import { getTimes, getGame, bet, getResultByGameCodeAndPeriod } from '@/api/lottery'
 import { showToast } from 'vant'
 import { $t } from '@/locales'
 import { useUserStore } from '@/store/modules/user'
@@ -248,7 +248,6 @@ const moneyList = ref(
 )
 const liList = ref([1,3,9,27,81,243,729,2187])
 const rate = ref(1)
-const agree = ref([1])
 const styleColor = ref('green')
 const gameInfo:any = ref({})
 const game_id = ref(null)
@@ -274,7 +273,7 @@ const showLotteryResult=()=> {
 	emit("showLotteryResult");
 }
 const showTrend =()=> {
-	trendRef.value && trendRef.value.showTrend(props.gameId)
+	trendRef.value && trendRef.value.showTrend(game_code.value)
 }
 const followBet=(info)=> {
 	followBetInfo.value = info;
@@ -297,7 +296,8 @@ const randomNumber=()=>{
 // 获取游戏信息
 const getGameData=()=>{
 	getGame({game_code: game_code.value}).then(res =>{
-		gameInfo.value = res
+		gameInfo.value = res.data
+		console.log(gameInfo.value,"gameInfo.value")
 		if(userFollow.value) {
 			// 用户跟投
 			let info:any = followBetInfo.value
@@ -310,16 +310,11 @@ const getGameData=()=>{
 			}
 			select( info.play_group, info.bet_play, betNum[info.bet_play] ? betNum[info.bet_play] : Number(info.bet_play))
 		}
-		// getGameAgentList()
+		
 	})
 }
 		
-// 获取代理游戏列表
-const getGameAgentList=()=>{
-	getGameAgentAlias({game_name: gameInfo.value.game_name}).then(res=>{
-		agentGameList.value = res
-	})
-}
+
 		
 // 游戏开奖时间
 const getTime=(isEnd?:boolean)=>{
@@ -344,7 +339,7 @@ const getTime=(isEnd?:boolean)=>{
 			"current_time": "2025-12-02 14:42:25"
 		 */
 		if(isEnd){ // 倒计时结束查结果更新记录
-			// getResultData(gameTime.value.previous_period)
+			getResultData(gameTime.value.issue_no)
 		}else {
 			comOpenTime(gameTime.value.current_time,gameTime.value.exit_time)
 		}
@@ -354,15 +349,15 @@ const getTime=(isEnd?:boolean)=>{
 // 获取本期开奖
 const getResultData=(previous_period)=>{
 	let params = {
-		game_id: props.gameId,
-		period: previous_period
+		game_code: systemStore.game_code,
+		issue_no: previous_period
 	}
 	getData(params);
 }
 const getData=async(params)=> {
 	clearInterval(resultTimer.value)
 	try {
-		let res:any = await getResult(params);
+		let res:any = await getResultByGameCodeAndPeriod(params);
 		if(res != null) {
 			winInfo.value = res
 			recentReuslt.value = res
@@ -370,7 +365,7 @@ const getData=async(params)=> {
 		}
 	}catch(error) {
 		resultTimer.value = setInterval(async()=>{
-			let res:any = await getResult(params)
+			let res:any = await getResultByGameCodeAndPeriod(params)
 			if(res != null) {
 				clearInterval(resultTimer.value)
 				winInfo.value = res
@@ -546,9 +541,10 @@ const init=()=>{
 		form.value.size = 1
 		showMask.value = false
 	}
-	let gameInfo = systemStore.gameConfig.find((item:any)=>item.game_code == systemStore.game_code)
-	game_id.value = gameInfo.id
-	currentTime.value = gameType.value.findIndex((item:any)=>item.gameids.indexOf(gameInfo.id)!=-1)
+	let gameDetail = systemStore.gameConfig.find((item:any)=>item.game_code == systemStore.game_code)
+	game_id.value = gameDetail.id
+	currentTime.value = gameType.value.findIndex((item:any)=>item.gameids.indexOf(gameDetail.id)!=-1)
+	console.log(currentTime.value,"currentTime.value")
 }
 const cancel=()=>{
 	init()

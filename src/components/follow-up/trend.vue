@@ -37,24 +37,27 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { resultRecord } from "@/api/lottery";
+import { gameResultsRecord } from "@/api/lottery";
 import { $t } from '@/locales'
 import { ref,nextTick} from "vue"
-const props = defineProps({
-	currentTime:{
-        default: () => {
-            return '';
-        }
-    }
-})
+import { useSystemStore } from '@/store/modules/system' 
+const systemStore = useSystemStore()
+// const props = defineProps({
+// 	currentTime:{
+//         default: () => {
+//             return '';
+//         }
+//     }
+// })
 const gameTypes = ref(
     [
-        { value: 1, label: "1" },
-        { value: 3, label: "3" },
-        { value: 5, label: "5" },
-        { value: 10, label: "10" },
+        {value: 1,label: '1',gameids:[1,5,9]},
+        {value: 3,label: '3',gameids:[2,6,10]},
+        {value: 5,label: '5',gameids:[3,7,11]},
+        {value: 10,label: '10',gameids:[4,8,12]}
     ]
 )
+const currentTime = ref(0)
 const show = ref(false)
 const ctx = ref(null)
 const renderVal:any = ref([])
@@ -67,20 +70,22 @@ const showOdd = ref(false)
 const showLoading = ref(false)
 const myCanvas2 = ref(null)
 
-const showTrend = async(gameId)=> {
+const showTrend = async(game_code)=> {
     show.value = true
+    let gameInfo = systemStore.gameConfig.find((item:any)=>item.game_code == systemStore.game_code)
+    currentTime.value = gameTypes.value.findIndex((item:any)=>item.gameids.indexOf(gameInfo.id)!=-1)
     nextTick(()=>{
         ctx2.value = myCanvas2.value.getContext('2d')
-        initData(gameId)
+        initData(game_code)
     })
 }
-const initData=(gameId:any)=> {
+const initData=(game_code:any)=> {
     showLoading.value = true
     var newArr = [];
-    resultRecord({game_id:gameId,pageIndex:1,pageSize:100}).then(res=>{
-        arrs.value = res.rows
+    gameResultsRecord({game_code:game_code,pageIndex:1,pageSize:100}).then(res=>{
+        arrs.value = res.data
         
-        let arrVal = res.rows.map(item=>{
+        let arrVal = res.data.map(item=>{
             return item.result[0]
         })
         for(var i = 0;i<arrVal.length;i++) {
