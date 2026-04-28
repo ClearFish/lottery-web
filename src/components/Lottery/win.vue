@@ -555,9 +555,21 @@ const init=()=>{
 		form.value.bet_amount = ''
 		showMask.value = false
 	}
-	let gameDetail = systemStore.gameConfig.find((item:any)=>item.game_code == systemStore.game_code)
+	console.log(systemStore.gameConfig,'22222')
+	const configs = Array.isArray(systemStore.gameConfig) ? systemStore.gameConfig : []
+	if (!configs.length) return
+
+	let gameDetail = configs.find((item:any)=>item.game_code == systemStore.game_code)
+	if (!gameDetail) gameDetail = configs[0]
+	if (!systemStore.game_code && gameDetail?.game_code) {
+		systemStore.setGameCode(gameDetail.game_code)
+		form.value.game_code = gameDetail.game_code
+	}
+
+	if (!gameDetail?.id) return
 	game_id.value = gameDetail.id
 	currentTime.value = gameType.value.findIndex((item:any)=>item.gameids.indexOf(gameDetail.id)!=-1)
+	if (currentTime.value < 0) currentTime.value = 0
 	console.log(currentTime.value,"currentTime.value")
 }
 const cancel=()=>{

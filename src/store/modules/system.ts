@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
-import {getTime,getSystemInfo,getGameConfig,getUserBalance} from '@/api/system'
-import { ref, computed } from 'vue'
+import { getTime, getSystemInfo, getGameConfig, getUserBalance } from "@/api/system";
+import { ref } from "vue";
 
 export const useSystemStore = defineStore('system', ()=>{
     const time = ref<any>({})
@@ -48,6 +48,7 @@ export const useSystemStore = defineStore('system', ()=>{
 
     const setGameCode = (code:string)=>{
         game_code.value = code
+        localStorage.setItem('game_code', code)
     }
 
     const getBalance = async()=>{
@@ -63,12 +64,12 @@ export const useSystemStore = defineStore('system', ()=>{
     }
 
     return {
-        loading: computed(()=>  loading.value),
-        time: computed(()=>  time.value),
-        systemInfo: computed(()=>  systemInfo.value),
-        gameConfig: computed(()=>  gameConfig.value),
-        balance: computed(()=>  balance.value),
-        game_code: computed(()=>  game_code.value),
+        loading,
+        time,
+        systemInfo,
+        gameConfig,
+        balance,
+        game_code,
 
         setGameCode,
         getSysTime,

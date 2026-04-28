@@ -361,7 +361,7 @@ const wingoGameCode = ['Color1m','Color3m','Color5m','Color10m']
 const lotre5DGameCode = ['Lotre5D1m','Lotre5D3m','Lotre5D5m','Lotre5D10m']
 const k3GameCode = ['K3Lotre1m','K3Lotre3m','K3Lotre5m','K3Lotre10m']
 onMounted(()=>{
-	console.log(systemStore.gameConfig,333)
+	console.log(systemStore.gameConfig,333,'win mounted')
 	let gameInfo = systemStore.gameConfig.find((item:any)=>item.game_code == systemStore.game_code)
 	console.log(gameInfo,444)
     params.value.game_code = systemStore.game_code ||'Color1m'
