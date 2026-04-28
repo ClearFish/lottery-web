@@ -64,18 +64,26 @@
 		</div>
 		<div class="box">
 			<div class="con-box flex flex-sb">
-				<van-button class="btn green" :class="lang == 'yuenan' ? 'green_v' :''" @click="select('ColorPlay', 'Green',11)"></van-button>
-				<van-button class="btn violet" :class="lang == 'yuenan' ? 'violet_v' :''" @click="select('ColorPlay', 'Violet',12)"></van-button>
-				<van-button class="btn red" :class="lang == 'yuenan' ? 'red_v' :''" @click="select('ColorPlay', 'Red',13)"></van-button>
+				<van-button 
+					class="btn green" 
+					@click="select('ColorPlay', 'Green')">
+				</van-button>
+				<van-button 
+					class="btn violet" 
+					@click="select('ColorPlay', 'Violet')">
+				</van-button>
+				<van-button 
+					class="btn red"
+					@click="select('ColorPlay', 'Red')">
+				</van-button>
 			</div>
 			<div class="btn-box flex-rcc">
-				<div class="item big flex-rcc" :class="lang == 'yuenan' ? 'big_v' :''" @click="select('BignessPlay','Big',22)"></div>
-				<div class="item small flex-rcc" :class="lang == 'yuenan' ? 'small_v' :''" @click="select('BignessPlay','Small',21)"></div>
+				<div class="item big flex-rcc"  @click="select('BignessPlay','Big')"></div>
+				<div class="item small flex-rcc"  @click="select('BignessPlay','Small')"></div>
 			</div>
 			<div class="number-box flex-sb flex-warp">
-				<div class="item flex-rcc" v-for="(i,index) in 10" :key="index" @click="select('NumberPlay',index,index)">
+				<div class="item flex-rcc" v-for="(i,index) in 10" :key="index" @click="select('NumberPlay',index)">
 					<div class="number flex-rcc" :class="{'randomNum': randomNum === index}">
-						<!-- <span class="txt">{{index}}</span> -->
 					</div>
 				</div>
 			</div>
@@ -116,7 +124,7 @@
 						<div v-if="[0,1,2,3,4,5,6,7,8,9].includes(selectType)" class="color img_box">
 							<img :src="'/static/game/number_'+selectType+'.png'" alt="">
 						</div>
-						<div class="color" v-else>{{$t("lottery.popupchoose")}}<span style="padding-left: 9px;box-sizing:border-box">
+						<div class="color" v-else>{{$t("lottery.popupchoose")}}:<span style="padding-left: 9px;box-sizing:border-box">
 							{{popupTitle}}
 						</span></div>
 					</div>
@@ -136,7 +144,7 @@
 						<div class="flex flex-item-col-center">
 							<div v-for="(i,index) in moneyList" 
 								:key="index" class="monItem" 
-								:class="{'action':form.money == i.value}" 
+								:class="{'action':initMoney == Number(i.value)}" 
 								@click="cutMon(i)">{{i.label}}</div>
 						</div>
 					</div>
@@ -144,14 +152,14 @@
 						<span class="name">{{$t("lottery.popupcell3")}}</span>
 						<div class="number_box">
 							<van-stepper
-								v-model="form.size" 
+								v-model="sizeVal" 
 								theme="round"
 								@change="valChange">
 							</van-stepper>
 						</div>
 					</div>
 					<div class="item liBox">
-						<div class="li" v-for="i in liList" :key="i" :class="{'action': form.size === i}" @click="rateChange(i)">X{{i}}</div>
+						<div class="li" v-for="i in liList" :key="i" :class="{'action': sizeVal === i}" @click="rateChange(i)">X{{i}}</div>
 					</div>
 				</div>
 				<div class="foot">
@@ -217,6 +225,9 @@ const popupTitle = ref('');
 const show = ref(false)
 const time = ref(null)
 const countdownTime:any = ref({});
+const colorPlay = ref([])
+const numberPlay= ref([])
+const bignessPlay = ref([])
 const timeData:any = ref({})
 const gameType = ref([
 	{value: 1,label: '1',gameids:[1,5,9]},
@@ -225,16 +236,22 @@ const gameType = ref([
 	{value: 10,label: '10',gameids:[4,8,12]}
 ])
 const rateList = ref([1,3,9,27,81,243,729])
-const form:any = ref(
-	{
-		game_id: null, // 游戏id
-		currency: 'SYSTEM', // 币种
-		period: null, // 期号
-		play_group: null, // 玩法组名
-		bet_play: null, // 玩法
-		bet_amount: 1000, // 下注金额
-		money: 1000,
-		size: 1,
+const initMoney = ref(1000)
+const form:any = ref({
+		// game_id: null, // 游戏id
+		// currency: 'SYSTEM', // 币种
+		// period: null, // 期号
+		// play_group: null, // 玩法组名
+		// bet_play: null, // 玩法
+		// bet_amount: 1000, // 下注金额
+		// size: 1,
+		game_code: systemStore.game_code,
+		issue_no: "",
+		pk: "",
+		play_type_code: "",
+		play_code: "",
+		bet_info: [""],
+		bet_amount: ""
 	})
 const moneyList = ref(
 	[
@@ -248,7 +265,6 @@ const moneyList = ref(
 )
 const liList = ref([1,3,9,27,81,243,729,2187])
 const rate = ref(1)
-const styleColor = ref('green')
 const gameInfo:any = ref({})
 const game_id = ref(null)
 const gameTime:any = ref({})
@@ -267,6 +283,7 @@ const betInfo = ref(null)
 const countDownBet = ref(null)
 const resultTimer = ref(null)
 const currentTime = ref(0)
+const sizeVal = ref(1)
 
 const emit = defineEmits(["showLotteryResult","updata","upDataLog","openRule"]);
 const showLotteryResult=()=> {
@@ -288,28 +305,31 @@ const randomNumber=()=>{
 	
 	setTimeout(()=>{
 		clearInterval(timer.value)
-		select('NumberPlay',randomNum.value,randomNum.value)
+		select('NumberPlay',randomNum.value)
 		randomNum.value = null
 	},2000)
 	
 }
 // 获取游戏信息
 const getGameData=()=>{
-	getGame({game_code: game_code.value}).then(res =>{
+	getGame({game_code: game_code.value}).then((res:any) =>{
 		gameInfo.value = res.data
-		console.log(gameInfo.value,"gameInfo.value")
-		if(userFollow.value) {
-			// 用户跟投
-			let info:any = followBetInfo.value
-			let betNum = {
-				'Green':11,
-				'Violet':12,
-				'Red':13,
-				'Big':22,
-				'Small':21
-			}
-			select( info.play_group, info.bet_play, betNum[info.bet_play] ? betNum[info.bet_play] : Number(info.bet_play))
-		}
+		colorPlay.value = res.data.find((item:any)=>item.play_type_code == 'ColorPlay') || []
+		numberPlay.value = res.data.find((item:any)=>item.play_type_code == 'NumberPlay') || []
+		bignessPlay.value = res.data.find((item:any)=>item.play_type_code == 'BignessPlay') || []
+		console.log(gameInfo.value,"gameInfo.value",colorPlay.value,numberPlay.value,bignessPlay.value)
+		// if(userFollow.value) {
+		// 	// 用户跟投
+		// 	let info:any = followBetInfo.value
+		// 	let betNum = {
+		// 		'Green':11,
+		// 		'Violet':12,
+		// 		'Red':13,
+		// 		'Big':22,
+		// 		'Small':21
+		// 	}
+		// 	select( info.play_group, info.bet_play, betNum[info.bet_play] ? betNum[info.bet_play] : Number(info.bet_play))
+		// }
 		
 	})
 }
@@ -320,7 +340,7 @@ const getGameData=()=>{
 const getTime=(isEnd?:boolean)=>{
 	getTimes({game_code: game_code.value}).then((res:any)=>{
 		gameTime.value = res.data
-		form.value.period = res.issue_no
+		form.value.issue_no = res.data.issue_no
 		/**
 		 * // 上期开始封盘，本期投注时间开始
 			"open_time": "2023-01-23 09:33:00",
@@ -403,27 +423,18 @@ const postBet=async()=>{
 	}else {
 		paramas = form.value
 	}
-	showLoading.value = true
-	try {
-		await bet(paramas);
-		cancel()
-		showToast($t('lottery.gametoast'))
-		emit('upDataLog')
-	}catch(error) {
-		showToast(error.msg)
-	}finally {
-		showLoading.value = false
-	}
-	// bet(paramas).then(res=>{
+	console.log(paramas,2222)
+	// showLoading.value = true
+	// try {
+	// 	await bet(paramas);
 	// 	cancel()
-	// 	if(res.code == 1) {
-	// 		showToast($t('lottery.gametoast'))
-	// 	}else {
-	// 		showToast(res.msg)
-	// 	}
-	// 	showLoading.value = false
+	// 	showToast($t('lottery.gametoast'))
 	// 	emit('upDataLog')
-	// })
+	// }catch(error) {
+	// 	showToast(error.msg)
+	// }finally {
+	// 	showLoading.value = false
+	// }
 }
 		
 const onChange=(e)=> {
@@ -462,83 +473,86 @@ const resetCountDown = ()=>{
 	countDownBet.value && countDownBet.value.reset()
 }	
 // 选择数字
-const select=(key1,key2,type)=>{
-	selectType.value = type;
-	const data = gameInfo.value.odds
-	form.value.play_group = key1//`${gameInfo.value.game_name}.${key1}.${key2}`//玩法组名
-	form.value.bet_play = key2 //玩法
-	const green = [11,1,3,7,9,21]
-	const red = [13,2,4,6,8]
-	if (green.includes(type)) {
-		styleColor.value = 'green'
-	} else if(red.includes(type)){
-		styleColor.value = 'red'
-	} else if(type===12) {
-		styleColor.value = 'violet'
-	} else if(type===0){
-		styleColor.value = '0'
-	}else if(type===5){
-		styleColor.value = '5'
-	}else{
-		styleColor.value = 'big'
-	}
-	popupTitle.value = keyText(type)
+/**
+ * 
+ * {
+  "game_code": "Color1m",
+  "issue_no": "脚本自动写入",
+  "pk": "A",
+  "play_type_code": "ColorPlay",
+  "play_code": "Green",
+  "bet_info": [""],
+  "bet_amount": "100.32"
+}
+ * @param key2 
+ * @param type 
+ */
+const select=(play_type_code:any,play_code:any)=>{
+	//ColorPlay NumberPlay BignessPlay  Red Big Small
+	selectType.value = play_code;
+	let betArr = [...colorPlay.value.plays,...numberPlay.value.plays,...bignessPlay.value.plays];
+	let betInfoObj:any = betArr.find((item:any)=>item.play_code == play_code)
+	console.log(betArr,"betArr",betInfoObj)
+	form.value.play_type_code = play_type_code//`${gameInfo.value.game_name}.${key1}.${key2}`//玩法组名
+	form.value.play_code = play_code //玩法
+	form.value.pk = betInfoObj.pk //玩法
+
+	popupTitle.value = keyText(play_code)
+
 	if(userFollow.value) {
-		form.value.size  = followBetInfo.value.size;
-		form.value.money = followBetInfo.value.money;
-		form.value.bet_amount = followBetInfo.value.bet_amount
+		// form.value.size  = followBetInfo.value.size;
+		// form.value.money = followBetInfo.value.money;
+		// form.value.bet_amount = followBetInfo.value.bet_amount
 	}else {
-		form.value.size = rate.value
-		form.value.bet_amount = form.value.size  * form.value.money
+		form.value.bet_amount = rate.value  * initMoney.value
 	}
 	show.value = true
 }
 		
-const keyText=(type)=>{
-	let str = ''
-	if(type<10){
-		str = type
-	}else if(type<20){
-		if(type===11){
-			str = $t("lottery.winGogreen")
-		}else if(type===12){
-			str = $t("lottery.winGoviolet")
-		}else{
-			str = $t("lottery.winGored")
-		}
-	}else{
-		if(type===22){
-			str = $t("lottery.winGobig")
-		}else{
-			str = $t("lottery.winGosmall")
+const keyText=(code:string)=>{
+	const isNumber = /^\d+$/.test(code)
+	if(isNumber){
+		return code
+	}else {
+		if(code == 'Green'){
+			return $t("lottery.winGogreen")
+		}else if(code == 'Violet'){
+			return $t("lottery.winGoviolet")
+		}else if(code == 'Red'){
+			return $t("lottery.winGored")
+		}else if(code == 'Big'){
+			return $t("lottery.winGobig")
+		}else if(code == 'Small'){
+			return $t("lottery.winGosmall")
 		}
 	}
-	return str
 }
 // 切换金额
-const cutMon=(i)=>{
-	form.value.money = i.value
-	form.value.bet_amount = form.value.size * form.value.money
+const cutMon=(i:any)=>{
+	initMoney.value = i.value
+	form.value.bet_amount = sizeVal.value * initMoney.value
 }
 // 数量change
-const valChange=(e)=>{
-	form.value.bet_amount = e * form.value.money
+const valChange=(e:number)=>{
+	form.value.bet_amount = e * initMoney.value
 }
 // 倍率
-const rateChange=(i)=>{
-	form.value.size = i
-	form.value.bet_amount = form.value.size  * form.value.money
+const rateChange=(i:number)=>{
+	sizeVal.value = i
+	form.value.bet_amount = i  * initMoney.value
 }
 const closePopup=()=>{
 	init()
 }
 const init=()=>{
 	if(!userFollow.value) {
-		form.value.play_group = null
-		form.value.bet_play = null
-		form.value.bet_amount = 1000
-		form.value.money = 1000
-		form.value.size = 1
+		form.value.game_code = systemStore.game_code
+		form.value.issue_no = ''
+		form.value.pk = ''
+		form.value.play_type_code = ''
+		form.value.play_code = ''
+		form.value.bet_info = [""]
+		form.value.bet_amount = ''
 		showMask.value = false
 	}
 	let gameDetail = systemStore.gameConfig.find((item:any)=>item.game_code == systemStore.game_code)
@@ -868,18 +882,18 @@ defineExpose({
 			border: none !important;
 		}
 		.green{
-			// background: url("/static/game/new/green.png") no-repeat center;
+			background: url("/static/game/green.png") no-repeat center;
 			background-size: 100% 100%;
 		}
 		.violet{
 			// background-color: #db5fd1;
 			// border-radius: 10px;
 			// box-shadow: 0 0 8px 1px rgb(219 95 209 / 58%);
-			// background: url("/static/game/new/violet.png") no-repeat center;
+			background: url("/static/game/violet.png") no-repeat center;
 			background-size: 100% 100%;
 		}
 		.red{
-			// background: url("/static/game/new/red.png") no-repeat center;
+			background: url("/static/game/red.png") no-repeat center;
 			background-size: 100% 100%;
 		}
 		.violet_v {
@@ -1021,11 +1035,11 @@ defineExpose({
 			width: 49%;
 		}
 		.big{
-			// background: url("/static/game/new/big.png") no-repeat center;
+			background: url("/static/game/big.png") no-repeat center;
 			background-size: 100% 100%;
 		}
 		.small{
-			// background: url("/static/game/new/small.png") no-repeat center;
+			background: url("/static/game/small.png") no-repeat center;
 			background-size: 100% 100%;
 		}
 		.big_v{

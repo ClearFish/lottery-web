@@ -471,7 +471,6 @@ const draw =(arr:any,key:any)=>{
 		if(key!==undefined) {
 			arr.map((v,index)=>{
 				let mn = initNumber.value + Number(v.result[key])*31
-				console.log(mn)
 				if(index<9){
 					let ln = initNumber.value + Number(arr[index+1].result[key])*31
 					let canvas:any = document.getElementById(`firstCanvas${index}`)
