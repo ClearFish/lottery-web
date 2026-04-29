@@ -6,7 +6,7 @@
                 v-if="recentReuslt && recentReuslt.result && recentReuslt.result.length"
             >
                 <div class="peroid">
-                    <div>{{ recentReuslt.period }}</div>
+                    <div>{{ recentReuslt.issue_no }}</div>
                     <div class="showMore" @click="showLotteryResult">{{$t("fllowup.More")}}</div>
                     <div class="showMore trend" @click="showTrend">
                         <img :src="trendIcon" alt="" />
@@ -45,7 +45,7 @@
             </div>
             <div class="period-span">
                 <div class="period_box">
-                    <span class="txt">{{ gameTime.period }}</span>
+                    <span class="txt">{{ gameTime.issue_no }}</span>
                     <div class="showMore trend" @click="showTrend" v-if="!isFollow">
                         <img :src="trendIcon" alt="" />
                     </div>
@@ -99,30 +99,30 @@
          <!-- 菜单 -->
         <div class="bet-box flex flex-col">
             <div class="k3-bet-content-sum" v-if="tabAction === 0">
-                <template v-if="gameInfo.odds && gameInfo.odds.TotalDicePlay">
-                <div
-                    class="item flex-cc"
-                    v-for="(value, key, index) in gameInfo.odds.TotalDicePlay"
-                    :key="index"
-                    :class="{ action: selectList.includes(keyText(key)) }"
-                    @click="select('TotalDicePlay', key)"
-                >
-                    <div class="itembox flex-cc">
-                        <span>{{ keyText(key) }}</span>
-                        <span class="des">{{ $t("lottery.k3odds") }} {{ value }}</span>
-                        <div class="select-icon flex-cc">
-                            <van-icon name="success" size="9" color="#3487F6" bold/>
+                <template v-if="tabList[0].plays && tabList[0].plays.length > 0">
+                    <div
+                        class="item flex-cc"
+                        v-for="(item,index) in tabList[0].plays"
+                        :key="index"
+                        :class="{ action: selectList.includes(keyText(item.play_code)) }"
+                        @click="select('TotalDicePlay', item)"
+                    >
+                        <div class="itembox flex-cc">
+                            <span>{{ keyText(item.play_code) }}</span>
+                            <span class="des">{{ $t("lottery.k3odds") }} {{ item.odds }}</span>
+                            <div class="select-icon flex-cc">
+                                <van-icon name="success" size="9" color="#3487F6" bold/>
+                            </div>
                         </div>
                     </div>
-                </div>
                 </template>
             </div>
 
             <div v-else-if="tabAction === 1" class="k3-bet-content-two">
-                <div class="title"
-                >{{ $t("lottery.k3type2text1") }}：{{ $t("lottery.k3odds") }}
-                {{ gameInfo.odds.DoubleDicePlay[11] }}</div
-                >
+                <div class="title">
+                    {{ $t("lottery.k3type2text1") }}：{{ $t("lottery.k3odds") }}
+                    {{ gameInfo.odds.DoubleDicePlay[11] }}
+                </div>
                 <div class="num-box flex flex-sb">
                 <div
                     class="num-box-item flex-rcc"
@@ -138,23 +138,23 @@
                 </div>
                 </div>
                 <div class="des">*{{ $t("lottery.k3type2text1rule") }}</div>
-                <div class="title"
-                >{{ $t("lottery.k3type2text2") }}：{{ $t("lottery.k3odds") }}
-                {{ gameInfo.odds.DoubleDicePlay[112] }}</div
-                >
-                <div class="num-box flex flex-sb">
-                <div
-                    class="num-box-item flex-rcc colorRed"
-                    v-for="i in numListTwo"
-                    :key="i"
-                    :class="{ actionRed: bothNum.includes(i) }"
-                    @click="selectboth('DoubleDicePlay', i)"
-                >
-                    {{ i }}
-                    <div class="select-icon flex-cc">
-                        <van-icon name="success" size="9" color="#3487F6" bold/>
-                    </div>
+                <div class="title">
+                    {{ $t("lottery.k3type2text2") }}：{{ $t("lottery.k3odds") }}
+                    {{ gameInfo.odds.DoubleDicePlay[112] }}
                 </div>
+                <div class="num-box flex flex-sb">
+                    <div
+                        class="num-box-item flex-rcc colorRed"
+                        v-for="i in numListTwo"
+                        :key="i"
+                        :class="{ actionRed: bothNum.includes(i) }"
+                        @click="selectboth('DoubleDicePlay', i)"
+                    >
+                        {{ i }}
+                        <div class="select-icon flex-cc">
+                            <van-icon name="success" size="9" color="#3487F6" bold/>
+                        </div>
+                    </div>
                 </div>
                 <div class="num-box flex flex-sb">
                 <div
@@ -290,12 +290,12 @@
 
             <div class="flex">
                 <div
-                class="flex-rcc tabItem"
-                v-for="item in tabList"
-                :key="item.value"
-                :class="{ tabAction: tabAction === item.value }"
-                @click="tabChange(item)"
-                >
+                    class="flex-rcc tabItem"
+                    v-for="item in tabList"
+                    :key="item.value"
+                    :class="{ tabAction: tabAction === item.value }"
+                    @click="tabChange(item)"
+                    >
                 {{ item.label }}
                 </div>
             </div>
@@ -517,24 +517,21 @@
 </template>
 <script setup lang="ts">
 // @ts-nocheck
-import { ref, defineEmits, watch } from "vue"
+import { ref, defineEmits, watch,onMounted,computed } from "vue"
 import miment from "miment";
-import { getTimes,getGameAgentAlias,getGame,getResult,bet   } from '@/api/lottery'
+import { getTimes,getGameAgentAlias,getGame,getResult,bet,getResultByGameCodeAndPeriod   } from '@/api/lottery'
 import { showToast } from 'vant'
 import { $t } from '@/locales'
 import trendIcon from "@/assets/lottery/trend-icon.svg"
 import Trend from "@/components/follow-up/k3trend.vue"
 import { useUserStore } from '@/store/modules/user'
+import { useSystemStore } from '@/store/modules/system'
+const systemStore = useSystemStore()
 const userStore = useUserStore() 
 const props = defineProps({
     gameId:{
         default: () => {
             return '' as any ;
-        }
-    },
-    currentTime:{
-        default: () => {
-            return '' as any;
         }
     },
     followInfo:{
@@ -548,27 +545,28 @@ const props = defineProps({
         }
     }
 })
+const game_code = computed(()=>systemStore.game_code)
 const recentReuslt = ref({})
 const trendRef = ref(null)
 const showMask = ref(false)
+const currentTime = ref(0)
 // 开奖时间
 const gameTime = ref({})
 const form:any = ref({
-    game_id: null, // 游戏id
-    currency: "SYSTEM", // 币种
-    period: null, // 期号
-    play_group: null, // 玩法组名
-    bet_play: null, // 玩法
-    bet_amount: 1000, // 下注金额
-    money: 1000,
-    size: 1,
+    game_code: systemStore.game_code,
+    issue_no: "",
+    pk: "",
+    play_type_code: "",
+    play_code: "",
+    bet_info: [""],
+    bet_amount: ""
 })
 const tabList = ref(
     [
-        { value: 0, label: $t("lottery.k3menu1") },
-        { value: 1, label: $t("lottery.k3menu2") },
-        { value: 2, label: $t("lottery.k3menu3") },
-        { value: 3, label: $t("lottery.k3menu4") },
+        { value: 0, label: $t("lottery.k3menu1"),keyVal:'TotalDicePlay',plays:[] },
+        { value: 1, label: $t("lottery.k3menu2"),keyVal:'DoubleDicePlay',plays:[] },
+        { value: 2, label: $t("lottery.k3menu3"),keyVal:'IdenticalDicePlay',plays:[] },
+        { value: 3, label: $t("lottery.k3menu4"),keyVal:'DifferentDicePlay',plays:[] },
     ]
 )
 const sum = ref(1)
@@ -595,7 +593,7 @@ const animation3 = ref(true)
 const timer1 = ref(null)
 const timer2 = ref(null)
 const resultTimer = ref(null)
-const time = ref()
+const time = ref(1000*60)
 const timeData = ref({})
 const firstNum = ref(1)
 const secondNum = ref(1)
@@ -619,45 +617,66 @@ const liList = ref([1, 3, 9, 27, 81, 243, 729,2187])
 const rate = ref(1)
 const agree = ref([1])
 const winInfo = ref({})
+const game_id = ref(null)
 const gameTypes = ref([
-    { value: 1, label: "1" },
-    { value: 3, label: "3" },
-    { value: 5, label: "5" },
-    { value: 10, label: "10" },
+    {value: 1,label: '1',gameids:[1,5,9]},
+	{value: 3,label: '3',gameids:[2,6,10]},
+	{value: 5,label: '5',gameids:[3,7,11]},
+	{value: 10,label: '10',gameids:[4,8,12]}
 ])
 const emit = defineEmits(["showLotteryResult","updata","upDataLog"]);
 const init = ()=>{
     sum.value = 0;
-    form.value.play_group = null;
-    form.value.bet_play = null;
-    form.value.bet_amount = 1000;
-    form.value.money = 1000;
-    form.value.size = 1;
+    form.value.game_code = systemStore.game_code
+    form.value.issue_no = ''
+    form.value.pk = ''
+    form.value.play_type_code = ''
+    form.value.play_code = ''
+    form.value.bet_info = [""]
+    form.value.bet_amount = ''
+    const configs = Array.isArray(systemStore.gameConfig) ? systemStore.gameConfig : []
+	if (!configs.length) return
+    let gameDetail = configs.find((item:any)=>item.game_code == systemStore.game_code)
+	if (!gameDetail) gameDetail = configs[0]
+	if (!systemStore.game_code && gameDetail?.game_code) {
+		systemStore.setGameCode(gameDetail.game_code)
+		form.value.game_code = gameDetail.game_code
+	}
+
+	if (!gameDetail?.id) return
+	game_id.value = gameDetail.id
+	currentTime.value = gameTypes.value.findIndex((item:any)=>item.gameids.indexOf(gameDetail.id)!=-1)
+	if (currentTime.value < 0) currentTime.value = 0
+
     showMask.value = false;
 }
 const getGameData = () =>{
     showLoading.value = true;
-    getGame({ game_id: props.gameId }).then((res:any) => {
-        gameInfo.value = res;
+    getGame({ game_code: game_code.value }).then((res:any) => {
+        gameInfo.value = res.data;
+        tabList.value.map((item:any)=>{
+            let itemObj = res.data.find((ite:any)=>ite.play_type_code == item.keyVal);
+            item.plays = [...itemObj.plays];
+            return item;
+        })
+        // console.log(tabList.value,"tabList.value")
         showLoading.value = false;
-        console.log(showLoading.value,"12222")
         if (userFollow.value) {
           // 用户跟投
           toFollow();
         }
-        getGameAgentList();
       });
 }
 // 游戏开奖时间
 const getTime = (isEnd) => {
-    getTimes({ game_id: props.gameId }).then((res) => {
-        gameTime.value = res;
-        form.value.period = res.period
+    getTimes({game_code: game_code.value}).then((res) => {
+        gameTime.value = res.data
+        form.value.issue_no = res.data.issue_no
         if (isEnd) {
             // 倒计时结束查结果更新记录
-            getResultData(gameTime.value.previous_period, isEnd);
+            getResultData(gameTime.value.previous_issue_no, isEnd);
         }else {
-            comOpenTime(gameTime.value.current_time,gameTime.value.end_time)
+            comOpenTime(gameTime.value.current_time,gameTime.value.exit_time)
         }
     })
 }
@@ -686,7 +705,7 @@ const showLotteryResult = ()=>{
     emit("showLotteryResult");
 }
 const showTrend = ()=>{
-    trendRef.value && trendRef.value.showTrend(props.gameId)
+    trendRef.value && trendRef.value.showTrend(game_code.value)
 }
 const followBet=(info:any)=> {
     console.log(info,'info')
@@ -970,28 +989,14 @@ const getGameAgentList=()=> {
 }
 
 const getResultData = async(previous_period, isEnd)=>{
-    clearInterval(resultTimer.value)
     let params = {
-        game_id: props.gameId,
-        period: previous_period,
-    };
-    try {
-        let res = await getResult(params);
-        if(res !== null) {
-            getCurrentIssueWinNumber(res.result, isEnd);
-            emit("updata");
-            clearInterval(resultTimer.value)
-        }
-    }catch(error) {
-        console.log(error,"2222")
-        resultTimer.value = setInterval(async()=>{
-            let res = await getResult(params);
-            if (res !== null) {
-                getCurrentIssueWinNumber(res.result, isEnd);
-                emit("updata");
-                clearInterval(resultTimer.value)
-            }
-        },1000)
+		game_code: systemStore.game_code,
+		issue_no: previous_period
+	}
+    let res = await getResultByGameCodeAndPeriod(params);
+    if(res.data !== null) {
+        getCurrentIssueWinNumber(res.data.result, isEnd);
+        emit("updata");
     }
 }
 // 获取本局结果
@@ -1193,21 +1198,21 @@ const cancel=()=> {
     init();
 }
 const onChange=(e)=> {
-    let str = (e.seconds / 10).toFixed(1);
-    let arr = str.split(".");
-    timeData.value = e;
-    timeData.value.seconds1 = Number(arr[0]);
-    timeData.value.seconds2 = Number(arr[1]);
-    if(arr[0] == '0' && arr[1]<6) {
-		showMask.value = true
-         if (show.value) {
-            show.value = false;
-        }
+    let str = (e.seconds/10).toFixed(1)
+	let arr:any = str.split('.')
+	timeData.value = e
+	timeData.value.seconds1 = arr[0]
+	timeData.value.seconds2 = arr[1];
+	if(e.minutes == 0 && e.seconds <6) {
+		showMask.value = true;
+		if(show.value) {
+			show.value = false
+		}
         setAnimation();
 	}else {
 		showMask.value = false
 	}
-	if(arr[0] == '0' && arr[1] == '0') {
+	if(e.minutes == 0 && e.seconds == 0 && arr[0] == '0' && arr[1] == '0') {
 		showMask.value = false
 	}
 }
@@ -1225,7 +1230,7 @@ const resetCountDown = ()=>{
         7:1000*60*5,
         8:1000*60*10
     }
-    time.value = numeGameid[props.gameId]
+    time.value = numeGameid[game_id.value]
     countDownBet.value && countDownBet.value.reset()
 }
 const comOpenTime=(star, end)=> {
@@ -1238,17 +1243,11 @@ const setAnimation=()=> {
     animation2.value = true;
     animation3.value = true;
 }
-watch(
-    ()=>props.gameId, (newV:any,oldV:any) => {
-        console.log(newV,";newVnewV;",oldV,props.gameId,props.gameId.value)
-        if (newV) {
-            form.value.game_id = newV;
-            init();
-            getGameData();
-            getTime();
-        }
-    },{immediate: true}
-)
+onMounted(()=>{
+    init()
+    getGameData()
+    getTime()
+})
 watch(
     () => selectList.value, (nV:any, oV:any) => {
         const length = selectList.value.length;
@@ -1482,30 +1481,30 @@ defineExpose({
         position: relative;
         }
         .d5-slot-box::before {
-        position: absolute;
-        top: 38px;
-        width: 0;
-        height: 0;
-        border-top: 6px solid transparent;
-        border-bottom: 6px solid transparent;
-        content: "";
-        z-index: 3;
-        left: -1px;
-        border-right: 18px solid transparent;
-        border-left: 18px solid #00b977;
+            position: absolute;
+            top: 38px;
+            width: 0;
+            height: 0;
+            border-top: 6px solid transparent;
+            border-bottom: 6px solid transparent;
+            content: "";
+            z-index: 3;
+            left: -1px;
+            border-right: 18px solid transparent;
+            border-left: 18px solid #00b977;
         }
         .d5-slot-box::after {
-        position: absolute;
-        top: 38px;
-        width: 0;
-        height: 0;
-        border-top: 6px solid transparent;
-        border-bottom: 6px solid transparent;
-        content: "";
-        z-index: 3;
-        right: -1px;
-        border-left: 18px solid transparent;
-        border-right: 18px solid #00b977;
+            position: absolute;
+            top: 38px;
+            width: 0;
+            height: 0;
+            border-top: 6px solid transparent;
+            border-bottom: 6px solid transparent;
+            content: "";
+            z-index: 3;
+            right: -1px;
+            border-left: 18px solid transparent;
+            border-right: 18px solid #00b977;
         }
         .slot-column {
             display: inline-block;
@@ -1605,7 +1604,7 @@ defineExpose({
                     }
                 }
                 .des {
-                    font-size: 7px;
+                    font-size: 8px;
                 }
         }
 

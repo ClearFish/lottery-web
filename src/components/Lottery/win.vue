@@ -223,7 +223,7 @@ const game_code = computed(()=>systemStore.game_code)
 const timer = ref(null);
 const popupTitle = ref('');
 const show = ref(false)
-const time = ref(null)
+const time = ref(1000*60)
 const countdownTime:any = ref({});
 const colorPlay = ref([])
 const numberPlay= ref([])
@@ -317,7 +317,7 @@ const getGameData=()=>{
 		colorPlay.value = res.data.find((item:any)=>item.play_type_code == 'ColorPlay') || []
 		numberPlay.value = res.data.find((item:any)=>item.play_type_code == 'NumberPlay') || []
 		bignessPlay.value = res.data.find((item:any)=>item.play_type_code == 'BignessPlay') || []
-		console.log(gameInfo.value,"gameInfo.value",colorPlay.value,numberPlay.value,bignessPlay.value)
+		// console.log(gameInfo.value,"gameInfo.value",colorPlay.value,numberPlay.value,bignessPlay.value)
 		// if(userFollow.value) {
 		// 	// 用户跟投
 		// 	let info:any = followBetInfo.value
@@ -359,7 +359,7 @@ const getTime=(isEnd?:boolean)=>{
 			"current_time": "2025-12-02 14:42:25"
 		 */
 		if(isEnd){ // 倒计时结束查结果更新记录
-			getResultData(gameTime.value.issue_no)
+			getResultData(gameTime.value.previous_issue_no)
 		}else {
 			comOpenTime(gameTime.value.current_time,gameTime.value.exit_time)
 		}
@@ -375,24 +375,32 @@ const getResultData=(previous_period)=>{
 	getData(params);
 }
 const getData=async(params)=> {
-	clearInterval(resultTimer.value)
-	try {
-		let res:any = await getResultByGameCodeAndPeriod(params);
-		if(res != null) {
-			winInfo.value = res
-			recentReuslt.value = res
-			emit('updata')
-		}
-	}catch(error) {
-		resultTimer.value = setInterval(async()=>{
-			let res:any = await getResultByGameCodeAndPeriod(params)
-			if(res != null) {
-				clearInterval(resultTimer.value)
-				winInfo.value = res
-				recentReuslt.value = res
-				emit('updata')
-			}
-		},1000)
+	// clearInterval(resultTimer.value)
+	// try {
+	// 	let res:any = await getResultByGameCodeAndPeriod(params);
+	// 	console.log(res,"2222333")
+	// 	if(res.data != null) {
+	// 		winInfo.value = res.data
+	// 		recentReuslt.value = res.data
+	// 		emit('updata')
+	// 	}
+	// }catch(error) {
+	// 	resultTimer.value = setInterval(async()=>{
+	// 		let res:any = await getResultByGameCodeAndPeriod(params)
+	// 		if(res.data != null) {
+	// 			clearInterval(resultTimer.value)
+	// 			winInfo.value = res.data
+	// 			recentReuslt.value = res.data
+	// 			emit('updata')
+	// 		}
+	// 	},1000)
+	// }
+	let res:any = await getResultByGameCodeAndPeriod(params);
+	console.log(res,"2222333")
+	if(res.data != null) {
+		winInfo.value = res.data
+		recentReuslt.value = res.data
+		emit('updata')
 	}
 	
 }
@@ -423,7 +431,7 @@ const postBet=async()=>{
 	}else {
 		paramas = form.value
 	}
-	console.log(paramas,2222)
+	// console.log(paramas,2222)
 	// showLoading.value = true
 	// try {
 	// 	await bet(paramas);
@@ -458,8 +466,9 @@ const onChange=(e)=> {
 }
 // 投注时间计时结束事件
 const finish=()=>{
+	console.log(222,'finish')
 	resetCountDown()
-	// getTime(true)
+	getTime(true)
 	
 }
 const resetCountDown = ()=>{
@@ -492,7 +501,6 @@ const select=(play_type_code:any,play_code:any)=>{
 	selectType.value = play_code;
 	let betArr = [...colorPlay.value.plays,...numberPlay.value.plays,...bignessPlay.value.plays];
 	let betInfoObj:any = betArr.find((item:any)=>item.play_code == play_code)
-	console.log(betArr,"betArr",betInfoObj)
 	form.value.play_type_code = play_type_code//`${gameInfo.value.game_name}.${key1}.${key2}`//玩法组名
 	form.value.play_code = play_code //玩法
 	form.value.pk = betInfoObj.pk //玩法
@@ -555,7 +563,6 @@ const init=()=>{
 		form.value.bet_amount = ''
 		showMask.value = false
 	}
-	console.log(systemStore.gameConfig,'22222')
 	const configs = Array.isArray(systemStore.gameConfig) ? systemStore.gameConfig : []
 	if (!configs.length) return
 
@@ -570,7 +577,7 @@ const init=()=>{
 	game_id.value = gameDetail.id
 	currentTime.value = gameType.value.findIndex((item:any)=>item.gameids.indexOf(gameDetail.id)!=-1)
 	if (currentTime.value < 0) currentTime.value = 0
-	console.log(currentTime.value,"currentTime.value")
+	// console.log(currentTime.value,"currentTime.value")
 }
 const cancel=()=>{
 	init()
@@ -592,15 +599,15 @@ onMounted(()=>{
 	getTime()
 })
 
-watch(
-    ()=>props.noThree, (newV:any,oldV:any) => {
-        if(newV){
-			if(gameType.value.length===4){
-				gameType.value.splice(1,1)
-			}
-		}
-    },{immediate: true}
-)
+// watch(
+//     ()=>props.noThree, (newV:any,oldV:any) => {
+//         if(newV){
+// 			if(gameType.value.length===4){
+// 				gameType.value.splice(1,1)
+// 			}
+// 		}
+//     },{immediate: true}
+// )
 defineExpose({
 	setRecentRes,
 	followBet 

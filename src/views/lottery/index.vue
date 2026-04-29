@@ -112,7 +112,7 @@
 							</template>
 							
 							<template v-else-if="game_type==1">
-								<div class="flex-item-1 flex-rcc">{{item.period}}</div>
+								<div class="flex-item-1 flex-rcc">{{item.issue_no}}</div>
 								<div class="flex-item-2 flex-rcc">
 									<span class="border" v-for="(i,index) in item.result" :key="index">{{i}}</span>
 								</div>
@@ -122,7 +122,7 @@
 							</template>
 							
 							<template v-else>
-								<div class="flex-item-1 flex-rcc third">{{item.period}}</div>
+								<div class="flex-item-1 flex-rcc third">{{item.issue_no}}</div>
 								<div class="flex-item-1 flex-rcc third">{{sumWin(item.result)}}</div>
 								<div class="flex-item-1 flex-rcc third">{{sumWin(item.result)>10? $t('lottery.winGobig'): $t('lottery.winGosmall')}}</div>
 								<div class="flex-item-1 flex-rcc third">{{(sumWin(item.result)%2)===0? $t('lottery.k3even'): $t('lottery.k3odd')}}</div>
@@ -322,7 +322,7 @@ import { $t } from '@/locales'
 const systemStore = useSystemStore() 
 
 const isPlay:any= ref(true)// 是否播放音乐
-const game_type:any= ref('0')// 游戏类型
+const game_type:any= ref(null)// 游戏类型
 const isRule:any= ref(false)
 const tabCurrent:any= ref(0)
 const current:any= ref(0)
@@ -361,15 +361,15 @@ const wingoGameCode = ['Color1m','Color3m','Color5m','Color10m']
 const lotre5DGameCode = ['Lotre5D1m','Lotre5D3m','Lotre5D5m','Lotre5D10m']
 const k3GameCode = ['K3Lotre1m','K3Lotre3m','K3Lotre5m','K3Lotre10m']
 onMounted(()=>{
-	console.log(systemStore.gameConfig,333,'win mounted')
+	// console.log(systemStore.gameConfig,333,'win mounted')
 	let gameInfo = systemStore.gameConfig.find((item:any)=>item.game_code == systemStore.game_code)
-	console.log(gameInfo,444)
+	// console.log(gameInfo,444)
     params.value.game_code = systemStore.game_code ||'Color1m'
     betParams.value.game_code = systemStore.game_code || '1'
     getResultRecord(1)
     createMusic()
 	current.value = gameType.value.findIndex((item:any)=>item.gameids.indexOf(gameInfo.id)!=-1)
-	console.log(current.value,555)
+	// console.log(current.value,555)
     const userAgent = navigator.userAgent.toLowerCase();
     if (/ipad|iphone|midp|rv:1.2.3.4|ucweb|android|windows ce|windows mobile/.test(userAgent)) {
         // 移动端
@@ -575,10 +575,8 @@ const sumWin=(value:any)=>{
 watch(
     () => gameLog.value, (nV:any, oV:any) => {
 		if(nV){
-			if(game_type.value == 1 && tabAction.value == 1){
+			if(game_type.value == 0 && tabAction.value == 1){
 				draw(nV,tabCurrent.value)
-			}else{
-				draw(nV,0)
 			}
 		}
 				
