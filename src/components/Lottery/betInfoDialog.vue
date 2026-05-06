@@ -8,7 +8,7 @@
             <div class="content_box">
                 <div class="top_head">
                     <img :src="TopInfoBg" alt="" class="top_img"/>
-                    <div class="title_info"></div>
+                    <!-- <div class="title_info"></div> -->
                 </div>
                 <div v-if="lotteryInfo.result && lotteryInfo.result.length" class="content_con">
                     <div class="center_container">
@@ -50,11 +50,11 @@
                         </div>
                         <div class="bet_cont">
                             <div class="title_bet">{{$t('sign.Bonous')}}</div>
-                            <div class="number">{{winNum}}VND</div>
+                            <div class="number">{{winNum}} {{balanceInfo.code}}</div>
                             <div class="game_item">
+                                <div class="game_typs">{{typeFilter(lotteryInfo.game_code)}}</div>
                                 <div class="title">{{$t('promotionactivity.period')}}</div>
-                                <div class="game_typs">{{typeFilter(lotteryInfo.game_id)}}</div>
-                                <div class="content">{{lotteryInfo.period}}</div>
+                                <div class="content">{{lotteryInfo.issue_no}}</div>
                             </div>
                         </div>
                     </div>
@@ -68,15 +68,33 @@
 </template>
 <script lang="ts" setup>
 // @ts-nocheck
-import { ref } from "vue"
-import { periodBetRecord } from '@/api/lottery'
+import { ref,computed } from "vue"
+import { periodBetRecord,getRollingBettingRecord } from '@/api/lottery'
 import TopInfoBg from "@/assets/game/betinfo/top_info.png"
+import { useSystemStore } from '@/store/modules/system'
+const systemStore = useSystemStore()
 const show:any = ref(false);
 const game5d:any = ref(['A','B','C','D','E']);
-const lotteryInfo:any = ref();
+/**
+ * {
+  "game_code": "Color1m",
+  "issue_no": "202605060935",
+  "result": [
+    "4"
+  ],
+  "status": "Settled",
+  "start_time": "2026-05-06T15:34:00Z",
+  "end_time": "2026-05-06T15:34:50Z",
+  "draw_time": "2026-05-06T15:35:00Z",
+  "next_issue_no": "202605060936"
+}
+ */
+const lotteryInfo:any = ref({});
 const betInfo:any = ref([]);
 const timer:any = ref(null);
 const winNum:any = ref('0.00');
+const game_code = computed(()=>systemStore.game_code)
+const balanceInfo = computed(()=>systemStore.balance)
 const props = defineProps({
     gameType:{
         default: () => {
@@ -86,20 +104,25 @@ const props = defineProps({
 })
 const typeFilter=(type:any)=> {
     let obj = {
-        '1':"1 min",
-        '2':"3 min",
-        '3':"5 min",
-        '4':"10 min"
+        'Color1m':"1 min",
+        'Color3m':"3 min",
+        'Color5m':"5 min",
+        'Color10m':"10 min"
     }
     return obj[type]
 }
-const open = async(requestinfo:any,info:any)=> {
-    let res = await periodBetRecord(requestinfo);
+const open = async(info:any)=> {
+    let params = {
+        game_code:game_code.value,
+        pageSize:20,
+        page:1
+    }
+    let res = await getRollingBettingRecord(params);
     lotteryInfo.value = info;
-    betInfo.value = res.rows;
-    if(res.rows && res.rows.length >0) {
+    betInfo.value = res.data;
+    if(res.data && res.data.length >0) {
         let amount = 0
-        amount = res.rows.reduce((amount:any,item:any)=>Number(amount)+Number(item.net_amount),amount)
+        amount = res.data.reduce((amount:any,item:any)=>Number(amount)+Number(item.net_amount),amount)
         winNum.value = amount.toFixed(2)
     }else {
         winNum.value = 0
@@ -112,6 +135,9 @@ const open = async(requestinfo:any,info:any)=> {
 const closeDialog =()=> {
     show.value = false
 }
+defineExpose({
+    open
+})
 </script>
 <style lang="less" scoped>
 @font-face {
@@ -173,7 +199,7 @@ const closeDialog =()=> {
                         content: "";
                         width: 123px;
                         height: 29px;
-                        background: url("@/assets/header_logo.png") no-repeat center;
+                       // background: url("@/assets/header_logo.png") no-repeat center;
                         background-size: 100% 100%;
                         position: absolute;
                         left: 50%;
@@ -433,29 +459,29 @@ const closeDialog =()=> {
                 background-size: 100% 100%;
                 padding: 14px;
                 margin-top: 30px;
-                &::before {
-                    content: "";
-                    width: 25px;
-                    height: 40px;
-                    position: absolute;
-                    left: -20px;
-                    top: 50px;
-                    z-index: -1;
-                    background: url("@/assets/game/betinfo/title_fake.png") no-repeat center;
-                    background-size: 100% 100%;
-                    transform: rotateY(180deg)
-                }
-                &::after {
-                    content: "";
-                    width: 25px;
-                    height: 40px;
-                    position: absolute;
-                    right: -20px;
-                    top: 50px;
-                    z-index: -1;
-                    background: url("@/assets/game/betinfo/title_fake.png") no-repeat center;
-                    background-size: 100% 100%;
-                }
+                // &::before {
+                //     content: "";
+                //     width: 25px;
+                //     height: 40px;
+                //     position: absolute;
+                //     left: -20px;
+                //     top: 50px;
+                //     z-index: -1;
+                //     background: url("@/assets/game/betinfo/title_fake.png") no-repeat center;
+                //     background-size: 100% 100%;
+                //     transform: rotateY(180deg)
+                // }
+                // &::after {
+                //     content: "";
+                //     width: 25px;
+                //     height: 40px;
+                //     position: absolute;
+                //     right: -20px;
+                //     top: 50px;
+                //     z-index: -1;
+                //     background: url("@/assets/game/betinfo/title_fake.png") no-repeat center;
+                //     background-size: 100% 100%;
+                // }
                 .title_bet {
                     font-family: buttersans-Regular;
                     font-size: 15.4px;
@@ -497,7 +523,7 @@ const closeDialog =()=> {
                 .center_container {
                     // background: linear-gradient(180deg, #F3E3C9 0%, #F3CF97 100%);
                     border-radius: 11px;
-                    padding-top: 90px;
+                    padding-top: 40px;
                     height: 100%;
                     .congra_box {
                         width: 100%;
@@ -508,7 +534,7 @@ const closeDialog =()=> {
                             width: 80%;
                             height: auto;
                         }
-                         font-size: 16px;
+                         font-size: 20px;
                         color: #861508;
                         font-family: 'buttersans-Regular';
                         font-weight: 600;

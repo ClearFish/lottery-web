@@ -95,3 +95,11 @@ export function getResultByGameCodeAndPeriod(params:any): Promise<any[]> {
     params:{}
   }) as Promise<any[]>
 }
+// 9.滚动投注记录
+export function getRollingBettingRecord(params:any): Promise<any[]> {
+  return http.request({
+    url: '/api/game/v1/rolling-betting-record',
+    method: 'get',
+    params
+  }) as Promise<any[]>
+}

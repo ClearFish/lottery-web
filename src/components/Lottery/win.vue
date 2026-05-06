@@ -134,8 +134,8 @@
 						<span class="name">{{$t("lottery.Balance")}}</span>
 						<div class="list_item">
 							<div class="item_box">
-								<span class="label">₫</span>
-                            	<span class="value">{{userStore.balance}}</span>
+								<span class="label">{{ balanceInfo.code }}</span>
+                            	<span class="value">{{balanceInfo.balance}}</span>
 							</div>
 						</div>
 					</div>
@@ -188,11 +188,9 @@ import { ref, defineEmits, watch,defineExpose,onMounted,computed } from "vue"
 import { getTimes, getGame, bet, getResultByGameCodeAndPeriod } from '@/api/lottery'
 import { showToast } from 'vant'
 import { $t } from '@/locales'
-import { useUserStore } from '@/store/modules/user'
 import trendIcon from "@/assets/lottery/trend-icon.svg"
 import randomIcon from "@/assets/lottery/random.svg"
 import Trend from "@/components/follow-up/trend.vue"
-const userStore = useUserStore() 
 import BetInfo from "./betInfoDialog.vue"
 import { useSystemStore } from '@/store/modules/system'
 const systemStore = useSystemStore()
@@ -215,6 +213,7 @@ const props = defineProps({
     },
 })
 const game_code = computed(()=>systemStore.game_code)
+const balanceInfo = computed(()=>systemStore.balance)
 const timer = ref(null);
 const popupTitle = ref('');
 const show = ref(false)
@@ -362,14 +361,14 @@ const getTime=(isEnd?:boolean)=>{
 }
 		
 // 获取本期开奖
-const getResultData=(previous_period)=>{
+const getResultData=(previous_period:string)=>{
 	let params = {
 		game_code: systemStore.game_code,
 		issue_no: previous_period
 	}
 	getData(params);
 }
-const getData=async(params)=> {
+const getData=async(params:any)=> {
 	// clearInterval(resultTimer.value)
 	// try {
 	// 	let res:any = await getResultByGameCodeAndPeriod(params);
@@ -395,6 +394,7 @@ const getData=async(params)=> {
 	if(res.data != null) {
 		winInfo.value = res.data
 		recentReuslt.value = res.data
+		betInfo.value.open(res.data)
 		emit('updata')
 	}
 	
@@ -857,11 +857,11 @@ defineExpose({
 			) !important;
 			}
 			.color5 {
-			background-image: linear-gradient(
-				to bottom right,
-				#5cba47 50%,
-				#eb43dd 0
-			) !important;
+			// background-image: linear-gradient(
+			// 	to bottom right,
+			// 	#5cba47 50%,
+			// 	#eb43dd 0
+			// ) !important;
 			}
 			.zi {
 				margin-left: 5px;
@@ -1095,6 +1095,7 @@ defineExpose({
 				height: 48px;
 				line-height: 48px;
 				position: relative;
+				padding: 0 20px;
 				&::before {
 					content: "";
 					position: absolute;
@@ -1102,7 +1103,7 @@ defineExpose({
 					height: 10px;
 					background:url("/static/game/title_fake.svg") no-repeat center;
 					background-size: 100% 100%;
-					left: 130px;
+					left: 120px;
 					top: 50%;
 					transform: translateY(-50%);
 				}
@@ -1113,7 +1114,7 @@ defineExpose({
 					height: 10px;
 					background:url("/static/game/title_fake.svg") no-repeat center;
 					background-size: 100% 100%;
-					right: 130px;
+					right: 120px;
 					top: 50%;
 					transform: translateY(-50%);
 				}
@@ -1171,11 +1172,11 @@ defineExpose({
 		}
 		
 		.color5 {
-		    background: #5cba47;
-		    background-image: linear-gradient(to bottom right,#5cba47 50%,#eb43dd 0)!important;
-			.color{
-				color: #5cba47;
-			}
+		    // background: #5cba47;
+		    // background-image: linear-gradient(to bottom right,#5cba47 50%,#eb43dd 0)!important;
+			// .color{
+			// 	color: #5cba47;
+			// }
 		}
 		
 		.colorbig {

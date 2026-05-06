@@ -8,6 +8,7 @@ import { useCachedViewStoreHook } from "@/store/modules/cachedView";
 import NProgress from "@/utils/progress";
 import setPageTitle from "@/utils/set-page-title";
 import { useSystemStore } from "@/store/modules/system";
+import { setLocale } from "@/locales";
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -26,6 +27,8 @@ router.beforeEach((to: toRouteType, from, next) => {
   if(to.query.token){
     localStorage.setItem('token',to.query.token as string)
     localStorage.setItem('game_code',to.query.game_code as string)
+    localStorage.setItem('language',to.query.lang as string)
+    setLocale(to.query.lang as string)
     useSystemStore().setGameCode(to.query.game_code as string)
     next({
         path: "/",

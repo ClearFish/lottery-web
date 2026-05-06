@@ -811,5 +811,11 @@
     "gamerecorddraw": "撤单",
     "tradingrecordorderNum": "订单号",
     "congratulation":"恭喜"
+  },
+  "sign":{
+    "Bonous":"奖励"
+  },
+  "promotionactivity":{
+    "period":"期数"
   }
 }
