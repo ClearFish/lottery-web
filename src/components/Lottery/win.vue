@@ -213,11 +213,6 @@ const props = defineProps({
             return true;
         }
     },
-	noThree:{
-        default: () => {
-            return true;
-        }
-    },
 })
 const game_code = computed(()=>systemStore.game_code)
 const timer = ref(null);
@@ -549,9 +544,7 @@ const rateChange=(i:number)=>{
 	sizeVal.value = i
 	form.value.bet_amount = i  * initMoney.value
 }
-const closePopup=()=>{
-	init()
-}
+
 const init=()=>{
 	if(!userFollow.value) {
 		form.value.game_code = systemStore.game_code
@@ -599,18 +592,12 @@ onMounted(()=>{
 	getTime()
 })
 
-// watch(
-//     ()=>props.noThree, (newV:any,oldV:any) => {
-//         if(newV){
-// 			if(gameType.value.length===4){
-// 				gameType.value.splice(1,1)
-// 			}
-// 		}
-//     },{immediate: true}
-// )
 defineExpose({
 	setRecentRes,
-	followBet 
+	followBet,
+	init,
+	getGameData,
+	getTime
 })
 </script>
 

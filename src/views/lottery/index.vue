@@ -328,10 +328,10 @@ const tabCurrent:any= ref(0)
 const current:any= ref(0)
 const tabList:any= ref(['A','B','C','D','E'])
 const gameType:any= ref([
-	{value: 1,label: '1',gameids:[1,5,9]},
-	{value: 3,label: '3',gameids:[2,6,10]},
-	{value: 5,label: '5',gameids:[3,7,11]},
-	{value: 10,label: '10',gameids:[4,8,12]}
+	{value: 1,label: '1',gameids:[1,5,9],game_code:'Color1m'},
+	{value: 3,label: '3',gameids:[2,6,10],game_code:'Color3m'},
+	{value: 5,label: '5',gameids:[3,7,11],game_code:'Color5m'},
+	{value: 10,label: '10',gameids:[4,8,12],game_code:'Color10m'}
 ])
 const tabAction:any= ref(0)
 const gameLog:any= ref([])
@@ -510,6 +510,9 @@ const cutTime=(key:any)=>{
     betParams.value.page = 1
     params.value.page = 1
     current.value = key
+	console.log(key,gameType.value)
+	systemStore.setGameCode(gameType.value[key].game_code);
+	initGame()
     params.value.game_code = systemStore.game_code
     betParams.value.game_code = systemStore.game_code
     if(tabAction.value!==2){
@@ -518,6 +521,18 @@ const cutTime=(key:any)=>{
         getBetRecord()
     }
     getBetRecord()
+}
+const initGame = ()=>{
+	if(game_type.value = '0'){
+		// wingo
+		winRef.value.init();
+		winRef.value.getGameData();
+		winRef.value.getTime();
+	}else if(game_type.value = '1'){
+		// 5d
+	}else if(game_type.value = '2'){
+		// k3
+	}
 }
 // 游戏开奖记录
 const getResultRecord = async(type?:any)=>{
