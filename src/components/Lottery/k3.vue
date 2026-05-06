@@ -40,7 +40,7 @@
         </div>
         <div class="page-box">
             <div class="period-title">
-                <span class="left_icon">{{ $t("lottery.timeText3") }}</span>
+                <span class="left_icon">{{ gameTypes[currentTime].label }}{{$t("lottery.gameunit")}}</span>
                 <span>{{ showMask ? $t("lottery.timeText2") : $t("lottery.timeText1") }}</span>
             </div>
             <div class="period-span">
@@ -120,10 +120,11 @@
 
             <div v-else-if="tabAction === 1" class="k3-bet-content-two">
                 <div class="title">
-                    {{ $t("lottery.k3type2text1") }}：{{ $t("lottery.k3odds") }}
-                    {{ gameInfo.odds.DoubleDicePlay[11] }}
+                    {{ $t("lottery.k3type2text1") }}：
+                    {{ $t("lottery.k3odds") }}{{ tabList[1].plays.find(item=>item.play_code.length == 2).odds }}
                 </div>
                 <div class="num-box flex flex-sb">
+                    <!-- numListTwo -->
                 <div
                     class="num-box-item flex-rcc"
                     v-for="i in numListTwo"
@@ -139,8 +140,9 @@
                 </div>
                 <div class="des">*{{ $t("lottery.k3type2text1rule") }}</div>
                 <div class="title">
-                    {{ $t("lottery.k3type2text2") }}：{{ $t("lottery.k3odds") }}
-                    {{ gameInfo.odds.DoubleDicePlay[112] }}
+                    <!--  -->
+                    {{ $t("lottery.k3type2text2") }}：
+                    {{ $t("lottery.k3odds") }}{{ tabList[1].plays.find(item=>item.play_code.length == 3).odds }}
                 </div>
                 <div class="num-box flex flex-sb">
                     <div
@@ -176,8 +178,7 @@
             <div v-else-if="tabAction === 2" class="k3-bet-content-two">
                 <div class="title"
                 >{{ $t("lottery.k3type3text1") }}：{{ $t("lottery.k3odds") }}
-                {{ gameInfo.odds.IdenticalDicePlay[111] }}</div
-                >
+                {{ tabList[2].plays.find(item=> numListThree.includes(Number(item.play_code))).odds }}</div>
                 <div class="num-box flex flex-sb">
                 <div
                     class="num-box-item flex-rcc"
@@ -195,8 +196,7 @@
                 <div class="des">*{{ $t("lottery.k3type3text1rule") }}</div>
                 <div class="title"
                 >{{ $t("lottery.k3type3text2") }}：{{ $t("lottery.k3odds") }}
-                {{ gameInfo.odds.IdenticalDicePlay.AAA }}</div
-                >
+                {{ tabList[2].plays.find(item=> item.play_code == 'AAA').odds }}</div>
                 <div class="num-box flex flex-sb">
                 <div
                     class="num-box-item flex-rcc num-box-item3 colorRed"
@@ -213,16 +213,8 @@
             </div>
 
             <div v-else class="k3-bet-content-two">
-                <div
-                class="title"
-                v-if="
-                    gameInfo.odds !== null &&
-                    gameInfo.odds &&
-                    gameInfo.odds.DifferentDicePlay
-                "
-                >{{ $t("lottery.k3type4text1") }}：{{ $t("lottery.k3odds") }}
-                {{ gameInfo.odds.DifferentDicePlay.Three }}</div
-                >
+                <div class="title">{{ $t("lottery.k3type4text1") }}：{{ $t("lottery.k3odds") }}
+                {{ tabList[3].plays.find(item=> item.play_code == 'Three').odds }}</div>
                 <div class="num-box flex flex-sb">
                 <div
                     class="num-box-item flex-rcc"
@@ -238,16 +230,9 @@
                 </div>
                 </div>
                 <div class="des">*{{ $t("lottery.k3type4text1rule") }}</div>
-                <div
-                class="title"
-                v-if="
-                    gameInfo.odds &&
-                    gameInfo.odds.DifferentDicePlay &&
-                    gameInfo.odds.DifferentDicePlay
-                "
-                >{{ $t("lottery.k3type4text2") }}：{{ $t("lottery.k3odds") }}
-                {{ gameInfo.odds.DifferentDicePlay.Straight }}</div
-                >
+                <div class="title">
+                    {{ $t("lottery.k3type4text2") }}：{{ $t("lottery.k3odds") }}
+                    {{ tabList[3].plays.find(item=> item.play_code == 'Straight').odds }}</div>
                 <div class="num-box flex flex-sb">
                 <div
                     class="num-box-item flex-rcc num-box-item3 colorRed"
@@ -261,16 +246,8 @@
                 </div>
                 </div>
                 <div class="des">*{{ $t("lottery.k3type4text2rule") }}</div>
-                <div
-                class="title"
-                v-if="
-                    gameInfo.odds &&
-                    gameInfo.odds.DifferentDicePlay &&
-                    gameInfo.odds.DifferentDicePlay
-                "
-                >{{ $t("lottery.k3type4text3") }}：{{ $t("lottery.k3odds") }}
-                {{ gameInfo.odds.DifferentDicePlay.Two }}</div
-                >
+                <div class="title">{{ $t("lottery.k3type4text3") }}：{{ $t("lottery.k3odds") }}
+                {{ tabList[3].plays.find(item=> item.play_code == 'Two').odds }}</div>
                 <div class="num-box flex flex-sb">
                 <div
                     class="num-box-item flex-rcc"
@@ -550,6 +527,7 @@ const recentReuslt = ref({})
 const trendRef = ref(null)
 const showMask = ref(false)
 const currentTime = ref(0)
+
 // 开奖时间
 const gameTime = ref({})
 const form:any = ref({
@@ -1568,7 +1546,7 @@ defineExpose({
   .bet-box {
     margin-top: 9px;
     position: relative;
-    min-height: 280px;
+    // min-height: 280px;
     .k3-bet-content-sum {
         margin-left: -2px;
         margin-right: -2px;
