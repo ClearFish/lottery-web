@@ -105,7 +105,7 @@
                         v-for="(item,index) in tabList[0].plays"
                         :key="index"
                         :class="{ action: selectList.includes(keyText(item.play_code)) }"
-                        @click="select('TotalDicePlay', item)"
+                        @click="selectOne(tabList[0].keyVal, item.play_code)"
                     >
                         <div class="itembox flex-cc">
                             <span>{{ keyText(item.play_code) }}</span>
@@ -130,7 +130,7 @@
                     v-for="i in numListTwo"
                     :key="i"
                     :class="{ action: selectList.includes(keyText(i)) }"
-                    @click="select('DoubleDicePlay', i)"
+                    @click="selectOne(tabList[1].keyVal, i)"
                 >
                     {{ i }}
                     <div class="select-icon flex-cc">
@@ -150,7 +150,7 @@
                         v-for="i in numListTwo"
                         :key="i"
                         :class="{ actionRed: bothNum.includes(i) }"
-                        @click="selectboth('DoubleDicePlay', i)"
+                        @click="selectboth(tabList[1].keyVal, i)"
                     >
                         {{ i }}
                         <div class="select-icon flex-cc">
@@ -164,7 +164,7 @@
                     v-for="i in 6"
                     :key="i"
                     :class="{ actionGreen: oddNum.includes(i) }"
-                    @click="selectodd('DoubleDicePlay', i)"
+                    @click="selectodd(tabList[1].keyVal, i)"
                 >
                     {{ i }}
                     <div class="select-icon flex-cc">
@@ -185,7 +185,7 @@
                     v-for="i in numListThree"
                     :key="i"
                     :class="{ action: threeNum.includes(i) }"
-                    @click="selectThreeNum('IdenticalDicePlay', i)"
+                    @click="selectThreeNum(tabList[2].keyVal, i)"
                 >
                     {{ i }}
                     <div class="select-icon flex-cc">
@@ -201,7 +201,7 @@
                 <div
                     class="num-box-item flex-rcc num-box-item3 colorRed"
                     :class="{ actionRed: isThree }"
-                    @click="selectThree('IdenticalDicePlay')"
+                    @click="selectThree(tabList[2].keyVal)"
                 >
                     {{ $t("lottery.k3type3text2") }}
                     <div class="select-icon flex-cc">
@@ -221,7 +221,7 @@
                     v-for="i in 6"
                     :key="i"
                     :class="{ action: threeDiffNum.includes(i) }"
-                    @click="selectThreeDiffNum('DifferentDicePlay', i)"
+                    @click="selectThreeDiffNum(tabList[3].keyVal, i)"
                 >
                     {{ i }}
                     <div class="select-icon flex-cc">
@@ -254,7 +254,7 @@
                     v-for="i in 6"
                     :key="i"
                     :class="{ action: twoDiffNum.includes(i) }"
-                    @click="selectTwoDiffNum('DifferentDicePlay', i)"
+                    @click="selectTwoDiffNum(tabList[3].keyVal, i)"
                 >
                     {{ i }}
                     <div class="select-icon flex-cc">
@@ -442,7 +442,7 @@
                         v-for="(i, index) in moneyList"
                         :key="index"
                         class="monItem"
-                        :class="{ action: form.money == i.value }"
+                        :class="{ action: initMoney == Number(i.value) }"
                         @click="cutMon(i)"
                         >{{ i.label }}</div
                     >
@@ -452,7 +452,7 @@
                     <span class="name">{{ $t("lottery.popupcell3") }}</span>
                     <div class="number_box">
                         <van-stepper
-                            v-model="form.size"
+                            v-model="sizeVal"
                             theme="round"
                             @change="valChange"
                         >
@@ -464,7 +464,7 @@
                     class="li"
                     v-for="i in liList"
                     :key="i"
-                    :class="{ action: form.size === i }"
+                    :class="{ action: sizeVal === i }"
                     @click="rateChange(i)"
                     >X{{ i }}</div
                     >
@@ -476,7 +476,7 @@
                     $t("lottery.popupbtn1")
                 }}</div>
                 <div class="right flex-rcc" @click="postBet"
-                    >{{ $t("lottery.popupbtn2") }} {{ sum }}</div
+                    >{{ $t("lottery.popupbtn2") }} {{ form.bet_amount }}</div
                 >
                 </div>
             </div>
@@ -496,7 +496,7 @@
 // @ts-nocheck
 import { ref, defineEmits, watch,onMounted,computed } from "vue"
 import miment from "miment";
-import { getTimes,getGameAgentAlias,getGame,getResult,bet,getResultByGameCodeAndPeriod   } from '@/api/lottery'
+import { getTimes,getGameAgentAlias,getGame,getResult,gameBetting,getResultByGameCodeAndPeriod   } from '@/api/lottery'
 import { showToast } from 'vant'
 import { $t } from '@/locales'
 import trendIcon from "@/assets/lottery/trend-icon.svg"
@@ -527,6 +527,8 @@ const recentReuslt = ref({})
 const trendRef = ref(null)
 const showMask = ref(false)
 const currentTime = ref(0)
+const sizeVal = ref(1)
+const initMoney = ref(1000)
 
 // 开奖时间
 const gameTime = ref({})
@@ -611,7 +613,7 @@ const init = ()=>{
     form.value.play_type_code = ''
     form.value.play_code = ''
     form.value.bet_info = [""]
-    form.value.bet_amount = ''
+    form.value.bet_amount = initMoney.value*sizeVal.value
     const configs = Array.isArray(systemStore.gameConfig) ? systemStore.gameConfig : []
 	if (!configs.length) return
     let gameDetail = configs.find((item:any)=>item.game_code == systemStore.game_code)
@@ -705,10 +707,10 @@ const toFollow = () =>{
       };
       tabAction.value = tabNum[info.play_group];
       if (tabAction.value == 0) {
-        select("TotalDicePlay", info.bet_play);
+        selectOne("TotalDicePlay", info.bet_play);
       } else if (tabAction.value == 1) {
         if (info.bet_play.length == 2) {
-          select("DoubleDicePlay", info.bet_play);
+          selectOne("DoubleDicePlay", info.bet_play);
         } else {
           selectboth("DoubleDicePlay", info.bet_play.substr(0, 2));
           selectodd("DoubleDicePlay", info.bet_play.substr(2));
@@ -734,8 +736,9 @@ const toFollow = () =>{
       }
 }
 // 选择总和
-const select =(group, key)=> {
-    form.value.play_group = group;
+const selectOne =(group:string, key:any)=> {
+    form.value.play_type_code = group;
+    console.log(key,'key',form.value)
     const key1 = keyText(key);
     if (!show.value) show.value = true;
     if (selectList.value.length === 0) {
@@ -760,8 +763,8 @@ const select =(group, key)=> {
     }
 }
 // 双数选择
-const selectboth=(name, i)=> {
-    form.value.play_group = name;
+const selectboth=(name:any, i:any)=> {
+    form.value.play_type_code = name;
     if (oddNum.value.length > 0) {
         const yu = i % 10;
         let index = oddNum.value.findIndex((v) => v === yu);
@@ -781,8 +784,8 @@ const selectboth=(name, i)=> {
     if ((bothNum.value.length === 0 || oddNum.value.length === 0) && selectList.value.length === 0) show.value = false;
 }
 // 单数选择
-const selectodd =(name, i)=> {
-    form.value.play_group = name;
+const selectodd =(name:any, i:any)=> {
+    form.value.play_type_code = name;
     if (bothNum.value.length > 0) {
     const sum = i * 11;
     let index = bothNum.value.findIndex((v) => v === sum);
@@ -807,8 +810,8 @@ const selectodd =(name, i)=> {
     show.value = false;
 }
 // 模式三 三数选择相同
-const selectThreeNum=(name, i)=> {
-    form.value.play_group = name;
+const selectThreeNum=(name:any, i:any)=> {
+    form.value.play_type_code = name;
     if (!show.value) show.value = true;
     if (threeNum.value.length === 0) {
         threeNum.value.push(i);
@@ -823,13 +826,13 @@ const selectThreeNum=(name, i)=> {
     if (show.value) {
         let num = isThree.value ? 1 : 0;
         let newnum = threeNum.value.length + num;
-        sum.value = newnum * form.value.size * form.value.money;
+        form.value.bet_amount = newnum * sizeVal.value * initMoney.value;
     }
     if (threeNum.value.length === 0) show.value = false;
 }
 // 模式三  三个相同数按钮
-const selectThree=(name)=> {
-    form.value.play_group = name;
+const selectThree=(name:any)=> {
+    form.value.play_type_code = name;
     isThree.value = !isThree.value;
     if (isThree.value) {
         show.value = true;
@@ -841,12 +844,12 @@ const selectThree=(name)=> {
     if (show.value) {
         let num = isThree.value ? 1 : 0;
         let newnum = threeNum.value.length + num;
-        sum.value = newnum * form.value.size * form.value.money;
+        form.value.bet_amount = newnum * sizeVal.value * initMoney.value;
     }
 }
 // 模式四 三个不同数字
-const selectThreeDiffNum=(name, i)=> {
-    form.value.play_group = name;
+const selectThreeDiffNum=(name:any, i:any)=> {
+    form.value.play_type_code = name;
     if (threeDiffNum.value.length === 0) {
         threeDiffNum.value.push(i);
     } else {
@@ -884,13 +887,13 @@ const selectThreeDiffNum=(name, i)=> {
         }
         let num = isThreeConNum.value ? 1 : 0;
         let newnum = groupThree.value.length + num + groupTwo.value.length;
-        sum.value = newnum * form.value.size * form.value.money;
+        form.value.bet_amount = newnum * sizeVal.value * initMoney.value;
     }
     if (threeDiffNum.value.length >= 3) show.value = true;
 }
  // 模式四 两个不同数字
-const selectTwoDiffNum=(name, i)=> {
-    form.value.play_group = name;
+const selectTwoDiffNum=(name:any, i:any)=> {
+    form.value.play_type_code = name;
     if (twoDiffNum.value.length === 0) {
         twoDiffNum.value.push(i);
     } else {
@@ -918,7 +921,7 @@ const selectTwoDiffNum=(name, i)=> {
         }
         let num = isThree.value ? 1 : 0;
         let newnum = threeNum.value.length + num;
-        sum.value = newnum * form.value.size * form.value.money;
+        form.value.bet_amount = newnum * sizeVal.value * initMoney.value;
     }
     if (twoDiffNum.value.length >= 2) show.value = true;
 }
@@ -956,7 +959,7 @@ const selectThreeConNum=()=> {
     if (show.value) {
     let num = isThreeConNum.value ? 1 : 0;
     let newnum = groupThree.value.length + num + groupTwo.value.length;
-    sum.value = newnum * form.value.size * form.value.money;
+    form.value.bet_amount = newnum * sizeVal.value * initMoney.value;
     }
 }
 // 获取代理游戏列表
@@ -1002,8 +1005,8 @@ const getCurrentIssueWinNumber=(arr, isEnd)=> {
     }, timerArr[2]);
 }
 // 切换金额
-const cutMon=(i)=> {
-    form.value.money = i.value;
+const cutMon=(i:any)=> {
+    initMoney.value = i.value
     let newNum = 0;
     if (tabAction.value === 0) {
     // 第一种
@@ -1020,7 +1023,8 @@ const cutMon=(i)=> {
         let num = isThreeConNum.value ? 1 : 0;
         newNum = groupThree.value.length + num + groupTwo.value.length;
     }
-        sum.value = newNum * form.value.size * form.value.money;
+    // sum.value = newNum * form.value.size * form.value.money;
+    form.value.bet_amount = newNum * sizeVal.value * initMoney.value
 }
 // 数量change
 const valChange=(e:any)=> {
@@ -1040,11 +1044,12 @@ const valChange=(e:any)=> {
         let num = isThreeConNum.value ? 1 : 0;
         let newNum = groupThree.value.length + num + groupTwo.value.length;
     }
-    sum.value = newNum * e * form.value.money;
+     form.value.bet_amount = newNum * e * initMoney.value
 }
 // 倍率
-const rateChange=(i)=> {
-    form.value.size = i;
+const rateChange=(i:any)=> {
+    // form.value.size = i;
+    sizeVal.value = i
     let newNum = 0;
     if (tabAction.value === 0) {
     // 第一种
@@ -1061,7 +1066,7 @@ const rateChange=(i)=> {
         let num = isThreeConNum.value ? 1 : 0;
         newNum = groupThree.value.length + num + groupTwo.value.length;
     }
-    sum.value = newNum * form.value.size * form.value.money;
+    form.value.bet_amount = newNum * sizeVal.value * initMoney.value
 }
 // tab切换
 const tabChange=(item)=> {
@@ -1102,10 +1107,10 @@ const postBet=()=> {
         arr.push("Two");
     }
     }
-    form.value.bet_amount = sum.value / arr.length;
+    form.value.bet_amount = form.value.bet_amount / arr.length;
     // if(tabAction.value!==3){
     arr.map(async(v, index) => {
-        form.value.bet_play = v;
+        form.value.play_code = v;
         if (tabAction.value === 3) {
             if (v === "Three" || v === "Two") {
                 form.value.bet_info = [];
@@ -1120,6 +1125,15 @@ const postBet=()=> {
                 }
             }
         }
+        /**
+         * "game_code": "Color1m",
+            "issue_no": "脚本自动写入",
+            "pk": "A",
+            "play_type_code": "ColorPlay",
+            "play_code": "Green",
+            "bet_info": [""],
+            "bet_amount": "100.32"
+         */
         let paramas:any;
         if (props.isFollow) {
             if (props.followInfo.isLunch) {
@@ -1142,19 +1156,20 @@ const postBet=()=> {
         } else {
             paramas = form.value;
         }
-        showLoading.value = true;
-        try {
-            await bet(paramas);
-            if(index === arr.length - 1) {
-                cancel();
-                showToast($t('lottery.gametoast'));
-                emit("upDataLog");
-            }
-        }catch(error) {
-            showToast(error.msg)
-        }finally {
-            showLoading.value = false;
-        }
+        console.log(paramas,"222")
+        // showLoading.value = true;
+        // try {
+        //     await gameBetting(paramas);
+        //     if(index === arr.length - 1) {
+        //         cancel();
+        //         showToast($t('lottery.gametoast'));
+        //         emit("upDataLog");
+        //     }
+        // }catch(error) {
+        //     showToast(error.msg)
+        // }finally {
+        //     showLoading.value = false;
+        // }
     });
 }
 const closePopup=()=> {
@@ -1232,16 +1247,16 @@ watch(
         if (tabAction.value === 0) {
             // 第一种总数
             if (length > 0) {
-            sum.value = length * form.value.size * form.value.money;
+            form.value.bet_amount = length * sizeVal.value * initMoney.value;
             }
         } else if (tabAction.value === 1) {
             // 第二种 2数相同或2+1
             if (length > 0) {
             if (bothNum.value.length > 0 && oddNum.value.length > 0) {
                 let newNum = bothNum.value.length * oddNum.value.length + length;
-                sum.value = newNum * form.value.size * form.value.money;
+                form.value.bet_amount = newNum * sizeVal.value * initMoney.value;
             } else {
-                sum.value = length * form.value.size * form.value.money;
+                form.value.bet_amount = length * sizeVal.value * initMoney.value;
             }
             }
         }
@@ -1253,7 +1268,7 @@ watch(
         const oddlength = oddNum.value.length;
         const selectlength = selectList.value.length;
         let newNum = bothlength * oddlength + selectlength;
-        sum.value = newNum * form.value.size * form.value.money;
+        form.value.bet_amount = newNum * sizeVal.value * initMoney.value;
     },
     {deep: true,immediate: true}
 )
@@ -1263,7 +1278,7 @@ watch(
         const oddlength = oddNum.value.length;
         const selectlength = selectList.value.length;
         let newNum = bothlength * oddlength + selectlength;
-        sum.value = newNum * form.value.size * form.value.money;
+        form.value.bet_amount = newNum * sizeVal.value * initMoney.value;
     },{deep: true,immediate: true}
 )
 defineExpose({

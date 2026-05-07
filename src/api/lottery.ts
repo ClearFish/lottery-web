@@ -29,6 +29,7 @@ export function bet(data: any): Promise<ApiResponse<any>> {
     data
   })
 }
+
 export function getResult(params:any): Promise<any[]> {
   return http.request({
     url: '/addons/game/api/getResult',
@@ -102,4 +103,12 @@ export function getRollingBettingRecord(params:any): Promise<any[]> {
     method: 'get',
     params
   }) as Promise<any[]>
+}
+// 投注 /api/game/v1/game-betting
+export function gameBetting(data: any): Promise<ApiResponse<any>> {
+  return http.request<ApiResponse<any>>({
+    url: '/api/game/v1/game-betting',
+    method: 'post',
+    data
+  })
 }

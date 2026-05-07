@@ -185,7 +185,7 @@
 <script setup lang="ts">
 import miment from 'miment'
 import { ref, defineEmits, watch,defineExpose,onMounted,computed } from "vue"
-import { getTimes, getGame, bet, getResultByGameCodeAndPeriod } from '@/api/lottery'
+import { getTimes, getGame, gameBetting, getResultByGameCodeAndPeriod } from '@/api/lottery'
 import { showToast } from 'vant'
 import { $t } from '@/locales'
 import trendIcon from "@/assets/lottery/trend-icon.svg"
@@ -426,10 +426,10 @@ const postBet=async()=>{
 	}else {
 		paramas = form.value
 	}
-	// console.log(paramas,2222)
-	// showLoading.value = true
+	console.log(paramas,2222)
+	showLoading.value = true
 	// try {
-	// 	await bet(paramas);
+	// 	await gameBetting(paramas);
 	// 	cancel()
 	// 	showToast($t('lottery.gametoast'))
 	// 	emit('upDataLog')
