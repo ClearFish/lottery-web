@@ -1108,6 +1108,7 @@ const postBet=()=> {
     }
     }
     form.value.bet_amount = form.value.bet_amount / arr.length;
+    form.value.issue_no = gameTime.value.issue_no;
     // if(tabAction.value!==3){
     arr.map(async(v, index) => {
         form.value.play_code = v;

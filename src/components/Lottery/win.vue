@@ -405,6 +405,7 @@ const setRecentRes=(result)=> {
 // 下注
 const postBet=async()=>{
 	let paramas;
+	form.value.issue_no = gameTime.value.issue_no;
 	if(props.isFollow) {	
 		if(props.followInfo.isLunch) {
 			paramas = {
@@ -426,6 +427,7 @@ const postBet=async()=>{
 	}else {
 		paramas = form.value
 	}
+	
 	console.log(paramas,2222)
 	showLoading.value = true
 	// try {
