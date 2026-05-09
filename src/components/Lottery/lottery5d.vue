@@ -6,7 +6,7 @@
 					<div>{{$t("lottery.text5d")}}</div>
 					<div class="showMore" @click="showLotteryResult" v-if="isFollow">{{$t("fllowup.More")}}</div>
 				</div>
-				<div class="round-num" v-for="(item,index) in winInfo.result" :key="index">
+				<div class="round-num" v-for="(item,index) in recentReuslt" :key="index">
 					<div class="num-scroll-box">{{item}}</div>
 					<div class="word-index">{{indexList[index]}}</div>
 				</div>
@@ -17,19 +17,13 @@
 			</div>
 			<div class="time_cont">
 				<div class="period-title">
-					<span class="left_icon">{{$t("lottery.timeText3")}}</span>
-					<span>
-						<!-- {{(timeData.minutes=== 0 && timeData.seconds<11 &&timeData.seconds>0)? 
-							$t("lottery.timeText2'): $t("lottery.timeText1')}} -->
-						{{
-						showMask ? 
-						$t("lottery.timeText2"): $t("lottery.timeText1")
-						}}	
+					<span class="left_icon">{{ gameTypes[currentTime].label }}{{$t("lottery.gameunit")}}</span>
+					<span>{{showMask ? $t("lottery.timeText2"): $t("lottery.timeText1")}}	
 					</span>
 				</div>
 				
 				<div class="period-span">
-					<span class="txt">{{gameTime.period}}</span>
+					<span class="txt">{{gameTime.issue_no}}</span>
 					<div>
 						<van-count-down 
 								:time="time" 
@@ -96,7 +90,7 @@
 		<div class="tzBox">
 			<div class="tabBox flex">
 				<div class="tabItem" v-for="(i,index) in tabList" :key="index" :class="{'action': tabCurrent===index}" @click="tabCut(index)">
-					{{i}}
+					{{i.labelName}}
 				</div>
 			</div>
 			<div class="bet-box add_padding">
@@ -203,7 +197,7 @@
 						<span class="name">{{$t("lottery.popupcell2")}}</span>
 						<div class="flex flex-item-col-center">
 							<div v-for="(i,index) in moneyList" :key="index" 
-							class="monItem" :class="{'action':form.money == i.value}" @click="cutMon(i)">{{i.label}}</div>
+							class="monItem" :class="{'action':initMoney == Number(i.value)}" @click="cutMon(i)">{{i.label}}</div>
 							<!-- <div class="monItem" :class="{'action':isAllin}" @click="allIn">all in</div> -->
 						</div>
 					</div>
@@ -211,19 +205,19 @@
 						<span class="name">{{$t("lottery.popupcell3")}}</span>
 						<div class="number_box">
 							<van-stepper
-								v-model="form.size" 
+								v-model="sizeVal" 
 								theme="round"
 								@change="valChange">
 							</van-stepper>
 						</div>
 					</div>
 					<div class="item liBox">
-						<div class="li" v-for="i in liList" :key="i" :class="{'action': form.size === i}" @click="rateChange(i)">X{{i}}</div>
+						<div class="li" v-for="i in liList" :key="i" :class="{'action': sizeVal === i}" @click="rateChange(i)">X{{i}}</div>
 					</div>
 				</div>
 				<div class="foot">
 					<div class="left flex-rcc" @click="cancel">{{$t("lottery.popupbtn1")}}</div>
-					<div class="right flex-rcc" @click="postBet">{{$t("lottery.popupbtn2")}}  {{sum}}</div>
+					<div class="right flex-rcc" @click="postBet">{{$t("lottery.popupbtn2")}}  {{form.bet_amount}}</div>
 				</div>
 			</div>
 		</van-popup>
@@ -240,19 +234,17 @@
 
 <script setup lang="ts">
 import miment from 'miment'
-import { ref, defineEmits, watch } from "vue"
-import { getTimes, getGame, bet, getResult, getGameAgentAlias } from '@/api/lottery'
+import { ref, defineEmits, watch,defineExpose,computed } from "vue"
+import { getTimes, getGame, bet, getResult, getGameAgentAlias,getResultByGameCodeAndPeriod } from '@/api/lottery'
 import { showToast } from 'vant'
 import { $t } from '@/locales'
 import { useUserStore } from '@/store/modules/user'
+import { useSystemStore } from '@/store/modules/system'
+import { onMounted } from 'vue'
+const systemStore = useSystemStore()
 const userStore = useUserStore() 
 const props = defineProps({
 	gameId:{
-        default: () => {
-            return '' as any;
-        }
-    },
-	currentTime:{
         default: () => {
             return '' as any;
         }
@@ -266,21 +258,14 @@ const props = defineProps({
         default: () => {
             return true;
         }
-    },
-	noThree:{
-        default: () => {
-            return true;
-        }
     }
 })
 
 
 const show = ref(false)
-const timmer = ref(null)
-const time = ref()
+const time = ref(1000*60)
 const timeData:any = ref({})
 const indexList = ref(['A','B','C','D','E'])
-const win_num = ref('1,8,2,3,6')
 const tabCurrent = ref(0)
 const moneyList = ref(
 	[
@@ -293,21 +278,18 @@ const moneyList = ref(
 	]
 )
 const liList = ref([1,3,9,27,81,243,729,2187])
-const form:any = ref(
-	{
-		game_id: null, // 游戏id
-		currency: 'SYSTEM', // 币种
-		period: null, // 期号
-		play_group: null, // 玩法组名
-		bet_play: null, // 玩法
-		bet_amount: 1000, // 下注金额
-		money: 1000,
-		size: 1,
-	}
-)
+const currentTime = ref(0)
+const form:any = ref({
+	game_code: systemStore.game_code,
+    issue_no: "",
+    pk: "",
+    play_type_code: "",
+    play_code: "",
+    bet_info: [""],
+    bet_amount: ""
+})
 const playType = ref([])
 const sum = ref(1)
-const agree = ref([1])
 const gameInfo:any = ref({})
 const gameTime:any = ref({})
 const winInfo:any = ref({})
@@ -315,13 +297,30 @@ const sum_num = ref(0)
 const agentGameList = ref([]) // 代理游戏列表
 const showMask = ref(false)
 const addanimation = ref(false)
-const gameTypes = ref([{value: 1,label: '1'},{value: 3,label: '3'},{value: 5,label: '5'},{value: 10,label: '10'}])
+const gameTypes = ref([
+	{value: 1,label: '1',gameids:[1,5,9]},
+	{value: 3,label: '3',gameids:[2,6,10]},
+	{value: 5,label: '5',gameids:[3,7,11]},
+	{value: 10,label: '10',gameids:[4,8,12]}
+])
 const followBetInfo:any = ref({})
 const userFollow = ref(false)
 const showLoading = ref(false)
-const tabList = ref(['A','B','C','D','E',"Tổng"])
+// ['A','B','C','D','E',"Sum"]
+const tabList = ref([
+	{labelName:'A'},
+	{labelName:'B'},
+	{labelName:'C'},
+	{labelName:'D'},
+	{labelName:'E'},
+	{labelName:'Sum'}
+])
 const countDownBet = ref(null)
-const resultTimer = ref(null)
+const game_id = ref(null)
+const recentReuslt = ref([])
+const sizeVal = ref(1)
+const game_code = computed(()=>systemStore.game_code)
+const initMoney = ref(1000)
 
 const emit = defineEmits(["showLotteryResult","updata","upDataLog",]);
 const showLotteryResult=()=> {
@@ -330,26 +329,24 @@ const showLotteryResult=()=> {
 const followBet=(info)=> {
 	followBetInfo.value = info;
 	userFollow.value = true;
-	form.value.size = info.size;
-	form.value.money = info.money;
+	sizeVal.value = info.size;
+	initMoney.value = info.money;
 	form.value.bet_amount = info.bet_amount;
 }
-// 获取上期结果
-const getPreWinNumber=()=>{
-	let params = {
-		game_id: props.gameId,
-		period: gameInfo.value.times.previous_period
-	}
-	getResult(params).then(res=>{
-		winInfo.value = res
-		sum_num.value = sumWin(winInfo.value.result)
-	})
+const setRecentRes = (results:any) =>{
+	recentReuslt.value = results;
+	sum_num.value = sumWin(results)
 }
+
 // 获取游戏信息
 const getGameData=()=>{
-	getGame({game_id: props.gameId}).then((res) =>{
-		gameInfo.value = res
+	getGame({game_code: game_code.value}).then((res:any) =>{
+		gameInfo.value = res.data;
 		console.log(gameInfo.value,"gameinfo")
+		tabList.value.forEach((item,index)=>{
+			return Object.assign(item,res.data[index])
+		})
+		console.log(tabList.value)
 		if(userFollow.value) {
 			// 用户跟投
 			let info = followBetInfo.value
@@ -357,56 +354,57 @@ const getGameData=()=>{
 			tabCurrent.value = arr.findIndex(item=>item == info.play_group)
 			select(info.bet_play)
 		}
-		getPreWinNumber()
-		getGameAgentList()
 	})
 }
-// 获取代理游戏列表
-const getGameAgentList=()=>{
-	getGameAgentAlias({game_name: gameInfo.value.game_name}).then(res=>{
-		agentGameList.value = res
-	})
-}
+
 // 游戏开奖时间
 const getTime=(isEnd?:boolean)=>{
-	getTimes({game_id: props.gameId}).then((res:any)=>{
-		gameTime.value = res
-		form.value.period = res.period
+	getTimes({game_code: game_code.value}).then((res:any)=>{
+		gameTime.value = res.data
+		form.value.issue_no = res.data.issue_no
 		if(isEnd){ // 倒计时结束查结果更新记录
-			getResultData(gameTime.value.previous_period)
+			getResultData(gameTime.value.previous_issue_no)
 		}else {
-			comOpenTime(gameTime.value.current_time,gameTime.value.end_time)
+			comOpenTime(gameTime.value.current_time,gameTime.value.exit_time)
 		}
 	})
 }
 		
 // 获取本期开奖
-const getResultData=async(previous_period)=>{
+const getResultData=async(previous_period:string)=>{
 	let params = {
-		game_id: props.gameId,
-		period: previous_period
+		game_code: systemStore.game_code,
+		issue_no: previous_period
 	}
-	clearInterval(resultTimer.value)
-	try {
-		let res:any = await getResult(params);
-		if(res != null) {
-			winInfo.value = res
-			sum_num.value = sumWin(winInfo.value.result)
-			start(res.result)
-			emit('updata')
-		}
-	}catch(error) {
-		resultTimer.value = setInterval(async()=>{
-			let res:any = await getResult(params);
-			if(res != null) {
-				clearInterval(resultTimer.value)
-				winInfo.value = res
-				sum_num.value = sumWin(winInfo.value.result)
-				start(res.result)
-				emit('updata')
-			}
-		},1000)
+	let res:any = await getResultByGameCodeAndPeriod(params);
+	if(res.data != null) {
+		winInfo.value = res.data
+		sum_num.value = sumWin(winInfo.value.result)
+		start(res.data.result)
+		emit('updata')
 	}
+
+	// clearInterval(resultTimer.value)
+	// try {
+	// 	let res:any = await getResult(params);
+	// 	if(res != null) {
+	// 		winInfo.value = res
+	// 		sum_num.value = sumWin(winInfo.value.result)
+	// 		start(res.result)
+	// 		emit('updata')
+	// 	}
+	// }catch(error) {
+	// 	resultTimer.value = setInterval(async()=>{
+	// 		let res:any = await getResult(params);
+	// 		if(res != null) {
+	// 			clearInterval(resultTimer.value)
+	// 			winInfo.value = res
+	// 			sum_num.value = sumWin(winInfo.value.result)
+	// 			start(res.result)
+	// 			emit('updata')
+	// 		}
+	// 	},1000)
+	// }
 	
 }
 		
@@ -479,7 +477,7 @@ const start=(numbers:any)=> {
 	if(numbers){
 		setTimeout(()=>{
 			for(var i=0; i<5; i++){
-				boxs[i].style.transform = 'translateY('+ (-3835 +  -55* numbers[i]) + "px)"; //2185 
+				boxs[i].style.transform = 'translateY('+ (-3830 +  -55* numbers[i]) + "px)"; //2185 
 				boxs[i].style.transition = (i+1) * 200 + "ms";  
 			} 
 		},100)
@@ -491,7 +489,7 @@ const onChange=(e)=> {
 	timeData.value = e
 	timeData.value.seconds1 = arr[0]
 	timeData.value.seconds2 = arr[1]
-	if(arr[0] == '0' && Number(arr[1]) < 6) {
+	if(e.minutes == 0 && e.seconds <6) {
 		showMask.value = true;
 		addanimation.value = true;
 		if(show.value) {
@@ -500,7 +498,7 @@ const onChange=(e)=> {
 	}else {
 		showMask.value = false
 	}
-	if(arr[0] == '0' && arr[1] == '0') {
+	if(arr[0] == '0' && arr[1] == '0' && arr[0] == '0' && arr[1] == '0') {
 		showMask.value = false
 	}
 }
@@ -517,12 +515,10 @@ const resetCountDown = ()=>{
         11:1000*60*5,
         12:1000*60*10
     }
-    time.value = numeGameid[props.gameId]
+    time.value = numeGameid[game_id.value]
 	countDownBet.value && countDownBet.value.reset()
 }
-const keyWinNumber=(value)=>{
-	return value.split(',')
-}
+
 //菜单切换
 const tabCut=(index)=>{
 	playType.value = []
@@ -575,7 +571,7 @@ const select=(index)=>{
 		}
 	}	
 	
-	sum.value = form.value.size  * form.value.money * playType.value.length
+	form.value.bet_amount = sizeVal.value  * initMoney.value * playType.value.length
 	show.value = true
 }
 //删除方法
@@ -586,33 +582,48 @@ const deleteIndex=(key)=>{
 	}
 }
 // 切换金额
-const cutMon=(i)=>{
-	form.value.money = i.value
-	sum.value = form.value.size * form.value.money * playType.value.length
+const cutMon=(i:any)=>{
+	initMoney.value = i.value
+	form.value.bet_amount = sizeVal.value * initMoney.value * playType.value.length
 }
 // 数量change
 const valChange=(e:any)=>{
-	sum.value = e * form.value.money * playType.value.length
+	// sum.value = e * form.value.money * playType.value.length
+	form.value.bet_amount = e * initMoney.value * playType.value.length
 }
 // 倍率
 const rateChange=(i)=>{
-	form.value.size = i
-	sum.value = form.value.size  * form.value.money * playType.value.length
+	sizeVal.value = i
+	form.value.bet_amount = i  * initMoney.value * playType.value.length
 }
 const closePopup=()=>{
 	init()
 }
 const init=()=>{
 	if(!userFollow.value) {
-	sum.value = 0
-	playType.value = []
-	form.value.play_group = null
-	form.value.bet_play = null
-	form.value.bet_amount = 1000
-	form.value.money = 1000
-	form.value.size = 1
-	showMask.value = false
+		sum.value = 0
+		playType.value = []
+		form.value.play_group = null
+		form.value.bet_play = null
+		form.value.bet_amount = 1000
+		initMoney.value = 1000
+		sizeVal.value = 1
+		showMask.value = false
 	}
+	const configs = Array.isArray(systemStore.gameConfig) ? systemStore.gameConfig : []
+	if (!configs.length) return
+
+	let gameDetail = configs.find((item:any)=>item.game_code == systemStore.game_code)
+	if (!gameDetail) gameDetail = configs[0]
+	if (!systemStore.game_code && gameDetail?.game_code) {
+		systemStore.setGameCode(gameDetail.game_code)
+		form.value.game_code = gameDetail.game_code
+	}
+
+	if (!gameDetail?.id) return
+	game_id.value = gameDetail.id
+	currentTime.value = gameTypes.value.findIndex((item:any)=>item.gameids.indexOf(gameDetail.id)!=-1)
+	if (currentTime.value < 0) currentTime.value = 0
 }
 const cancel=()=>{
 	init()
@@ -626,19 +637,19 @@ const comOpenTime=(star,end)=>{
 	console.timeEnd()
 }
 
-watch(
-    ()=>props.gameId, (newV:any,oldV:any) => {
-        if (newV) {
-            form.value.game_id = newV;
-            init();
-            getGameData();
-            getTime();
-        }
-    },{immediate: true}
-)
+onMounted(()=>{
+	init();
+	getTime()
+	getGameData()
+})
+
 defineExpose({
 	followBet,
-	start 
+	start,
+	init,
+	getGameData,
+	getTime,
+	setRecentRes
 })
 </script>
 

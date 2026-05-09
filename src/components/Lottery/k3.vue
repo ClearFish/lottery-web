@@ -1286,7 +1286,10 @@ defineExpose({
     setAnimation,
     getCurrentIssueWinNumber,
     setRecentRes,
-    followBet 
+    followBet,
+    init,
+    getGameData,
+    getTime,
 })
 </script>
 <style lang="less" scoped>

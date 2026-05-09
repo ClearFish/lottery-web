@@ -328,10 +328,10 @@ const tabCurrent:any= ref(0)
 const current:any= ref(0)
 const tabList:any= ref(['A','B','C','D','E'])
 const gameType:any= ref([
-	{value: 1,label: '1',gameids:[1,5,9],game_code:'Color1m'},
-	{value: 3,label: '3',gameids:[2,6,10],game_code:'Color3m'},
-	{value: 5,label: '5',gameids:[3,7,11],game_code:'Color5m'},
-	{value: 10,label: '10',gameids:[4,8,12],game_code:'Color10m'}
+	{value: 1,label: '1'},
+	{value: 3,label: '3'},
+	{value: 5,label: '5'},
+	{value: 10,label: '10'}
 ])
 const tabAction:any= ref(0)
 const gameLog:any= ref([])
@@ -368,8 +368,6 @@ onMounted(()=>{
     betParams.value.game_code = systemStore.game_code || '1'
     getResultRecord(1)
     createMusic()
-	current.value = gameType.value.findIndex((item:any)=>item.gameids.indexOf(gameInfo.id)!=-1)
-	// console.log(current.value,555)
     const userAgent = navigator.userAgent.toLowerCase();
     if (/ipad|iphone|midp|rv:1.2.3.4|ucweb|android|windows ce|windows mobile/.test(userAgent)) {
         // 移动端
@@ -378,14 +376,28 @@ onMounted(()=>{
         // pc端
         initNumber.value = 70
     }
-
 	// 游戏类型
 	if(wingoGameCode.includes(gameInfo.game_code)){
-		game_type.value = '0'
+		game_type.value = 0;
+		let winTypes = systemStore.gameConfig.filter((item:any)=>wingoGameCode.includes(item.game_code));
+		current.value = winTypes.findIndex((item:any)=>item.game_code == gameInfo.game_code);
+		gameType.value.forEach((item:any,index:any)=>{
+			return Object.assign(item,winTypes[index])
+		})
 	}else if(lotre5DGameCode.includes(gameInfo.game_code)){
-		game_type.value = '1'
+		game_type.value = 1;
+		let lotre5DTypes = systemStore.gameConfig.filter((item:any)=>lotre5DGameCode.includes(item.game_code));
+		current.value = lotre5DTypes.findIndex((item:any)=>item.game_code == gameInfo.game_code);
+		gameType.value.forEach((item:any,index:any)=>{
+			return Object.assign(item,lotre5DTypes[index])
+		})
 	}else if(k3GameCode.includes(gameInfo.game_code)){
-		game_type.value = '2'
+		game_type.value = 2;
+		let k3Types = systemStore.gameConfig.filter((item:any)=>k3GameCode.includes(item.game_code));
+		current.value = k3Types.findIndex((item:any)=>item.game_code == gameInfo.game_code);
+		gameType.value.forEach((item:any,index:any)=>{
+			return Object.assign(item,k3Types[index])
+		})
 	}
 })
 onUnmounted(()=>{
@@ -510,7 +522,6 @@ const cutTime=(key:any)=>{
     betParams.value.page = 1
     params.value.page = 1
     current.value = key
-	console.log(key,gameType.value)
 	systemStore.setGameCode(gameType.value[key].game_code);
 	initGame()
     params.value.game_code = systemStore.game_code
@@ -520,18 +531,23 @@ const cutTime=(key:any)=>{
     }else{
         getBetRecord()
     }
-    getBetRecord()
 }
 const initGame = ()=>{
-	if(game_type.value = '0'){
+	if(game_type.value == 0){
 		// wingo
 		winRef.value.init();
 		winRef.value.getGameData();
 		winRef.value.getTime();
-	}else if(game_type.value = '1'){
+	}else if(game_type.value == 1){
 		// 5d
-	}else if(game_type.value = '2'){
+		d5Ref.value.init();
+		d5Ref.value.getGameData();
+		d5Ref.value.getTime();
+	}else if(game_type.value == 2){
 		// k3
+		k3Ref.value.init();
+		k3Ref.value.getGameData();
+		k3Ref.value.getTime();
 	}
 }
 // 游戏开奖记录
@@ -554,6 +570,7 @@ const getResultRecord = async(type?:any)=>{
 			}
 			if(d5Ref.value) {
 				d5Ref.value.start(res.data[0].result)
+				d5Ref.value.setRecentRes(res.data[0].result);
 			}
 			if(winRef.value) {
 				winRef.value.setRecentRes(res.data[0]);
