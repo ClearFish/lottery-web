@@ -94,40 +94,23 @@
 				</div>
 			</div>
 			<div class="bet-box add_padding">
-				<div class="flex-sb" v-if="gameInfo.odds && Object.keys(gameInfo.odds).length > 0">
-					<div class="bet-type-btn flex-sb" @click="select('Big')">
-						<span>{{$t("lottery.winGobig")}}</span>
-						<span>{{gameInfo.odds.SumPlay.Big}}</span>
-					</div>
-					<div class="bet-type-btn flex-sb" @click="select('Small')">
-						<span>{{$t("lottery.winGosmall")}}</span>
-						<span>{{gameInfo.odds.SumPlay.Small}}</span>
-					</div>
-					<div class="bet-type-btn flex-sb" @click="select('Odd')">
-						<span>{{$t("lottery.k3odd")}}</span>
-						<span>{{gameInfo.odds.SumPlay.Odd}}</span>
-					</div>
-					<div class="bet-type-btn flex-sb" @click="select('Even')">
-						<span>{{$t("lottery.k3even")}}</span>
-						<span>{{gameInfo.odds.SumPlay.Even}}</span>
-					</div>
-				</div>
-				<template v-if="gameInfo.odds && Object.keys(gameInfo.odds.Ball1Play).length > 0">
-					<div class="flex-sb flex-warp" v-if="tabCurrent<5">
-						<div class="bet-num-line flex-cc" v-for="(item,index) in gameInfo.odds.Ball1Play" :key="index" @click="select(index)">
-							<template v-if="index<10">
-								<div class="round">{{index}}</div>
-								<span>{{item}}</span>
-							</template>
+				<div class="flex-sb flex-warp">
+					<div 
+						class="bet-num-line flex-cc"
+						 v-for="(item,index) in tabList[tabCurrent].plays" 
+						:key="index" 
+						@click="select(item)"
+					>
+						<template v-if="/^\d+$/.test(item.play_code)">
+							<div class="round">{{item.play_code}}</div>
+							<span>{{item.odds}}</span>
+						</template>
+						<div class="bet-type-btn flex-sb" v-else>
+							<span>{{item.play_code}}</span>
+							<span>{{item.odds}}</span>
 						</div>
 					</div>
-				</template>
-	
-			</div>
-			
-			<!-- 代理游戏 -->
-			<div class="flex" style="margin-top: 20px;" v-if="agentGameList.length>1">
-				<div class="agent-item" :class="{'red-agent-item': Number(gameId)===item.game_id}" v-for="(item,index) in agentGameList" :key="index">{{item.agent_alias}}</div>
+				</div>
 			</div>
 			<div class="mask-box flex-rcc" v-if="showMask">
 				<div class="countTimeBox rihht-1">{{timeData.seconds1}}</div>
@@ -148,39 +131,30 @@
 					<div class="bet-box">
 						<div class="tabBox flex">
 							<div class="tabItem" v-for="(i,index) in tabList" :key="index" :class="{'action': tabCurrent===index}" @click="tabCut(index)">
-								{{i}}
+								{{i.labelName}}
 							</div>
 						</div>
-						
-						<div class="flex-sb" v-if="Object.keys(gameInfo).length>0">
-							<div class="bet-type-btn flex-sb" :class="{'active0':playType.includes('Big')}" @click="select('Big')">
-								<span>{{$t("lottery.winGobig")}}</span>
-								<span>{{gameInfo.odds.SumPlay.Big}}</span>
-							</div>
-							<div class="bet-type-btn flex-sb" :class="{'active1':playType.includes('Small')}" @click="select('Small')">
-								<span>{{$t("lottery.winGosmall")}}</span>
-								<span>{{gameInfo.odds.SumPlay.Small}}</span>
-							</div>
-							<div class="bet-type-btn flex-sb" :class="{'active2':playType.includes('Odd')}" @click="select('Odd')">
-								<span>{{$t("lottery.k3odd")}}</span>
-								<span>{{gameInfo.odds.SumPlay.Odd}}</span>
-							</div>
-							<div class="bet-type-btn flex-sb" :class="{'active3':playType.includes('Even')}" @click="select('Even')">
-								<span>{{$t("lottery.k3even")}}</span>
-								<span>{{gameInfo.odds.SumPlay.Even}}</span>
-							</div>
-						</div>
-											
-						<template v-if="Object.keys(gameInfo).length>0">
-							<div class="flex-sb flex-warp" v-if="tabCurrent<5">
-								<div class="bet-num-line flex-cc" v-for="(item,index) in gameInfo.odds.Ball1Play" :key="index"   @click="select(index)">
-									<template v-if="index<10">
-										<div class="round" :class="{'activeNum': playType.includes(index)}">{{index}}</div>
-										<span>{{item}}</span>
-									</template>
+						<div class="flex-sb flex-warp">
+							<div 
+								class="bet-num-line flex-cc"
+								v-for="(item,index) in tabList[tabCurrent].plays" 
+								:key="index" 
+								@click="select(item)"
+							>
+								<template v-if="/^\d+$/.test(item.play_code)">
+									<div class="round" 
+										:class="{'activeNum':playType.includes(item.play_code)}">{{item.play_code}}</div>
+									<span>{{item.odds}}</span>
+								</template>
+								<div class="bet-type-btn flex-sb" 
+									v-else
+									:class="{'active_other':playType.includes(item.play_code)}"  
+								>
+									<span>{{item.play_code}}</span>
+									<span>{{item.odds}}</span>
 								</div>
 							</div>
-						</template>
+						</div>
 					</div>
 				</div>
 				<div class="info">
@@ -217,7 +191,7 @@
 				</div>
 				<div class="foot">
 					<div class="left flex-rcc" @click="cancel">{{$t("lottery.popupbtn1")}}</div>
-					<div class="right flex-rcc" @click="postBet">{{$t("lottery.popupbtn2")}}  {{form.bet_amount}}</div>
+					<div class="right flex-rcc" @click="postBet">{{$t("lottery.popupbtn2")}}  {{sum}}</div>
 				</div>
 			</div>
 		</van-popup>
@@ -289,7 +263,7 @@ const form:any = ref({
     bet_amount: ""
 })
 const playType = ref([])
-const sum = ref(1)
+const sum = ref(1000)
 const gameInfo:any = ref({})
 const gameTime:any = ref({})
 const winInfo:any = ref({})
@@ -331,7 +305,7 @@ const followBet=(info)=> {
 	userFollow.value = true;
 	sizeVal.value = info.size;
 	initMoney.value = info.money;
-	form.value.bet_amount = info.bet_amount;
+	sum.value = info.bet_amount;
 }
 const setRecentRes = (results:any) =>{
 	recentReuslt.value = results;
@@ -410,7 +384,17 @@ const getResultData=async(previous_period:string)=>{
 		
 // 下注
 const postBet=()=>{
-	form.value.bet_amount = sum.value/playType.value.length
+	/**
+	 * 	game_code: systemStore.game_code,
+		issue_no: "",
+		pk: "",
+		play_type_code: "",
+		play_code: "",
+		bet_info: [""],
+		bet_amount: ""
+	 */
+	form.value.bet_amount = sum.value/playType.value.length;
+	form.value.issue_no = gameTime.value.issue_no;
 	let length = playType.value.length-1
 	console.log('playType.value', playType.value)
 	playType.value.map(async(v,index)=>{
@@ -437,31 +421,20 @@ const postBet=()=>{
 		}else {
 			paramas = form.value
 		}
-		showLoading.value = true
-		try {
-			await bet(paramas);
-			if(index === length) {
-				cancel();
-				showToast($t('lottery.gametoast'))
-				emit('upDataLog')
-			}
-		}catch(error) {
-			showToast(error.msg)
-		}finally {
-			showLoading.value = false
-		}
-		// bet(paramas).then(res=>{
-		// 	if(index === length){
-		// 		cancel()
-		// 		if(res.code == 1) {
-		// 			showToast($t('lottery.gametoast'))
-		// 		}else {
-		// 			showToast(res.msg)
-		// 		}
-		// 		showLoading.value = false	
+		console.log(paramas,"2233")
+		// showLoading.value = true
+		// try {
+		// 	await bet(paramas);
+		// 	if(index === length) {
+		// 		cancel();
+		// 		showToast($t('lottery.gametoast'))
 		// 		emit('upDataLog')
 		// 	}
-		// })
+		// }catch(error) {
+		// 	showToast(error.msg)
+		// }finally {
+		// 	showLoading.value = false
+		// }
 	})
 	
 }
@@ -523,7 +496,6 @@ const resetCountDown = ()=>{
 const tabCut=(index)=>{
 	playType.value = []
 	tabCurrent.value=index
-	form.value.play_group = index
 }
 // 求和
 const sumWin=(value)=>{
@@ -535,21 +507,26 @@ const sumWin=(value)=>{
 	})
 	return sum
 }
-const select=(index)=>{
-	const arr = Object.keys(gameInfo.value.odds)
-	form.value.play_group = arr[tabCurrent.value]
-	if(isNaN(Number(index))){ // 非数字
+const select=(item:any)=>{
+	
+	form.value.play_type_code = item.play_type_code;
+	form.value.play_code = item.play_code;
+	form.value.pk = item.pk;
+	let code = item.play_code
+	// v-if="/^\d+$/.test(item.play_code)"
+	if(!/^\d+$/.test(item.play_code)){ // 非数字
+		console.log('非数字',item.play_code)
 		if(playType.value.length===0){
-			playType.value.push(index)
+			playType.value.push(code)
 		}else{
-			const key = playType.value.findIndex(v=>{ return v===index })
+			const key = playType.value.findIndex(v=>{ return v===code })
 			if(key<0){
-				playType.value.push(index)
-				if(index==="Big"){
+				playType.value.push(code)
+				if(code==="Big"){
 					deleteIndex('Small')
-				}else if(index==="Small"){
+				}else if(code==="Small"){
 					deleteIndex('Big')
-				}else if(index==="Odd"){
+				}else if(code==="Odd"){
 					deleteIndex('Even')
 				}else{
 					deleteIndex('Odd')
@@ -558,20 +535,20 @@ const select=(index)=>{
 				playType.value.splice(key,1)
 			}
 		}
+		console.log('playType.value', playType.value)
 	}else{ // 数字
 		if(playType.value.length===0){
-			playType.value.push(index)
+			playType.value.push(code)
 		}else{
-			const key = playType.value.findIndex(v=>{ return v===index })
+			const key = playType.value.findIndex(v=>{ return v===code })
 			if(key<0){
-				playType.value.push(index)
+				playType.value.push(code)
 			}else{
 				playType.value.splice(key,1)
 			}
 		}
 	}	
-	
-	form.value.bet_amount = sizeVal.value  * initMoney.value * playType.value.length
+	sum.value = sizeVal.value  * initMoney.value * playType.value.length
 	show.value = true
 }
 //删除方法
@@ -584,17 +561,17 @@ const deleteIndex=(key)=>{
 // 切换金额
 const cutMon=(i:any)=>{
 	initMoney.value = i.value
-	form.value.bet_amount = sizeVal.value * initMoney.value * playType.value.length
+	sum.value = sizeVal.value * initMoney.value * playType.value.length
 }
 // 数量change
 const valChange=(e:any)=>{
 	// sum.value = e * form.value.money * playType.value.length
-	form.value.bet_amount = e * initMoney.value * playType.value.length
+	sum.value = e * initMoney.value * playType.value.length
 }
 // 倍率
 const rateChange=(i)=>{
 	sizeVal.value = i
-	form.value.bet_amount = i  * initMoney.value * playType.value.length
+	sum.value = i  * initMoney.value * playType.value.length
 }
 const closePopup=()=>{
 	init()
@@ -603,9 +580,9 @@ const init=()=>{
 	if(!userFollow.value) {
 		sum.value = 0
 		playType.value = []
-		form.value.play_group = null
 		form.value.bet_play = null
 		form.value.bet_amount = 1000
+		sum.value = 1000
 		initMoney.value = 1000
 		sizeVal.value = 1
 		showMask.value = false
@@ -1076,19 +1053,20 @@ defineExpose({
 			margin-bottom: 2px;
 		}
 	}
-	.bet-type-btn{
-		// width: 65px;
-		height: 32px;
-		line-height: 32px;
-		background: rgba(66, 66, 66, 0.1);
-		border-radius: 5px;
-		color: #666;
-		margin-bottom: 14px;
-		padding: 0 5px;
-		box-sizing:border-box;
-		font-size: 14px;
-		font-weight: 500;
-	}
+
+}
+.bet-type-btn{
+	// width: 65px;
+	height: 32px;
+	line-height: 32px;
+	background: rgba(66, 66, 66, 0.1);
+	border-radius: 5px;
+	color: #666;
+	margin-bottom: 14px;
+	padding: 0 5px;
+	box-sizing:border-box;
+	font-size: 14px;
+	font-weight: 500;
 }
 .popupStyle{
 	background: none;
@@ -1122,7 +1100,7 @@ defineExpose({
 					height: 10px;
 					background:url("/static/game/title_fake.svg") no-repeat center;
 					background-size: 100% 100%;
-					left: 130px;
+					left: 110px;
 					top: 50%;
 					transform: translateY(-50%);
 				}
@@ -1133,7 +1111,7 @@ defineExpose({
 					height: 10px;
 					background:url("/static/game/title_fake.svg") no-repeat center;
 					background-size: 100% 100%;
-					right: 130px;
+					right: 110px;
 					top: 50%;
 					transform: translateY(-50%);
 				}
@@ -1300,8 +1278,13 @@ defineExpose({
 	border: 1px solid #3487F6;
 	color: #fff !important;
 }
+.active_other {
+	background: #3487F6 !important;
+	color: #fff !important;
+}
 .active0{
 	background: #3487F6 !important;
+	
 }
 .active1{
 	background: #fff !important;

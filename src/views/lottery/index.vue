@@ -480,6 +480,15 @@ const getUserInfo = async()=>{
 }
 const draw =(arr:any,key:any)=>{
     nextTick(()=>{
+		for(let i = 0; i < 9; i++){
+			const canvas:any = document.getElementById(`firstCanvas${i}`)
+			if(!canvas) continue
+			const ctx = canvas.getContext('2d')
+			if(!ctx) continue
+			ctx.clearRect(0,0,canvas.width,canvas.height)
+			ctx.beginPath()
+		}
+
 		if(key!==undefined) {
 			arr.map((v,index)=>{
 				let mn = initNumber.value + Number(v.result[key])*31
@@ -489,6 +498,8 @@ const draw =(arr:any,key:any)=>{
 					let ctx = canvas.getContext('2d')
 					ctx.strokeStyle = '#fb4e4e'
 					ctx.lineWidth  = 4
+					ctx.lineCap = 'square';
+					ctx.beginPath()
 					ctx.moveTo(mn, 16)
 					ctx.lineTo(ln, 168)
 					ctx.stroke()
@@ -607,7 +618,7 @@ const sumWin=(value:any)=>{
 watch(
     () => gameLog.value, (nV:any, oV:any) => {
 		if(nV){
-			if(game_type.value == 0 && tabAction.value == 1){
+			if((game_type.value == 0 || game_type.value == 1) && tabAction.value == 1){
 				draw(nV,tabCurrent.value)
 			}
 		}
@@ -818,7 +829,7 @@ watch(
 			border-radius: 16px;
 			margin-right: 4px;
 			color: #bbb;
-			font-size: 16px;
+			font-size: 12px;
 			display: flex;
 			align-items: center;
 			justify-content: center;
@@ -892,11 +903,12 @@ watch(
 		font-size: 12px;
 	}
 	.border-r{
-		width: 16px;
-		height: 16px;
+		width: 20px;
+		height: 20px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		line-height: 20px;
 		font-size: 12px;
 		border: none;
 		color: #fff;

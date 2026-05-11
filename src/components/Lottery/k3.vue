@@ -216,18 +216,18 @@
                 <div class="title">{{ $t("lottery.k3type4text1") }}：{{ $t("lottery.k3odds") }}
                 {{ tabList[3].plays.find(item=> item.play_code == 'Three').odds }}</div>
                 <div class="num-box flex flex-sb">
-                <div
-                    class="num-box-item flex-rcc"
-                    v-for="i in 6"
-                    :key="i"
-                    :class="{ action: threeDiffNum.includes(i) }"
-                    @click="selectThreeDiffNum(tabList[3].keyVal, i)"
-                >
-                    {{ i }}
-                    <div class="select-icon flex-cc">
-                        <van-icon name="success" size="9" color="#3487F6" bold/>
+                    <div
+                        class="num-box-item flex-rcc"
+                        v-for="i in 6"
+                        :key="i"
+                        :class="{ action: threeDiffNum.includes(i) }"
+                        @click="selectThreeDiffNum(tabList[3].keyVal, i)"
+                    >
+                        {{ i }}
+                        <div class="select-icon flex-cc">
+                            <van-icon name="success" size="9" color="#3487F6" bold/>
+                        </div>
                     </div>
-                </div>
                 </div>
                 <div class="des">*{{ $t("lottery.k3type4text1rule") }}</div>
                 <div class="title">
@@ -237,7 +237,7 @@
                 <div
                     class="num-box-item flex-rcc num-box-item3 colorRed"
                     :class="{ actionRed: isThreeConNum }"
-                    @click="selectThreeConNum"
+                    @click="selectThreeConNum(tabList[3].keyVal)"
                 >
                     {{ $t("lottery.k3type4text2") }}
                     <div class="select-icon flex-cc">
@@ -476,7 +476,7 @@
                     $t("lottery.popupbtn1")
                 }}</div>
                 <div class="right flex-rcc" @click="postBet"
-                    >{{ $t("lottery.popupbtn2") }} {{ form.bet_amount }}</div
+                    >{{ $t("lottery.popupbtn2") }} {{ sum }}</div
                 >
                 </div>
             </div>
@@ -549,7 +549,7 @@ const tabList = ref(
         { value: 3, label: $t("lottery.k3menu4"),keyVal:'DifferentDicePlay',plays:[] },
     ]
 )
-const sum = ref(1)
+const sum = ref(1000)
 const timer = ref(null)
 const showLoading = ref(false)
 const gameInfo = ref({})
@@ -606,13 +606,15 @@ const gameTypes = ref([
 ])
 const emit = defineEmits(["showLotteryResult","updata","upDataLog"]);
 const init = ()=>{
-    sum.value = 0;
     form.value.game_code = systemStore.game_code
     form.value.issue_no = ''
     form.value.pk = ''
     form.value.play_type_code = ''
     form.value.play_code = ''
     form.value.bet_info = [""]
+    initMoney.value = 1000;
+    sizeVal.value = 1;
+    sum.value = initMoney.value*sizeVal.value;
     form.value.bet_amount = initMoney.value*sizeVal.value
     const configs = Array.isArray(systemStore.gameConfig) ? systemStore.gameConfig : []
 	if (!configs.length) return
@@ -826,7 +828,7 @@ const selectThreeNum=(name:any, i:any)=> {
     if (show.value) {
         let num = isThree.value ? 1 : 0;
         let newnum = threeNum.value.length + num;
-        form.value.bet_amount = newnum * sizeVal.value * initMoney.value;
+        sum.value = newnum * sizeVal.value * initMoney.value;
     }
     if (threeNum.value.length === 0) show.value = false;
 }
@@ -844,7 +846,7 @@ const selectThree=(name:any)=> {
     if (show.value) {
         let num = isThree.value ? 1 : 0;
         let newnum = threeNum.value.length + num;
-        form.value.bet_amount = newnum * sizeVal.value * initMoney.value;
+        sum.value = newnum * sizeVal.value * initMoney.value;
     }
 }
 // 模式四 三个不同数字
@@ -854,11 +856,11 @@ const selectThreeDiffNum=(name:any, i:any)=> {
         threeDiffNum.value.push(i);
     } else {
         const index = threeDiffNum.value.findIndex((v) => v === i);
-    if (index < 0) {
-        threeDiffNum.value.push(i);
-    } else {
-        threeDiffNum.value.splice(index, 1);
-    }
+        if (index < 0) {
+            threeDiffNum.value.push(i);
+        } else {
+            threeDiffNum.value.splice(index, 1);
+        }
     }
     if (threeDiffNum.value.length >= 3) {
         groupThree.value = [];
@@ -887,9 +889,15 @@ const selectThreeDiffNum=(name:any, i:any)=> {
         }
         let num = isThreeConNum.value ? 1 : 0;
         let newnum = groupThree.value.length + num + groupTwo.value.length;
-        form.value.bet_amount = newnum * sizeVal.value * initMoney.value;
+        
+        sum.value = newnum * sizeVal.value * initMoney.value;
     }
-    if (threeDiffNum.value.length >= 3) show.value = true;
+    if (threeDiffNum.value.length >= 3) {
+        show.value = true;
+        let num = isThreeConNum.value ? 1 : 0;
+        let newnum = groupThree.value.length + num + groupTwo.value.length;
+        sum.value = newnum * sizeVal.value * initMoney.value;
+    }
 }
  // 模式四 两个不同数字
 const selectTwoDiffNum=(name:any, i:any)=> {
@@ -921,11 +929,17 @@ const selectTwoDiffNum=(name:any, i:any)=> {
         }
         let num = isThree.value ? 1 : 0;
         let newnum = threeNum.value.length + num;
-        form.value.bet_amount = newnum * sizeVal.value * initMoney.value;
+        sum.value = newnum * sizeVal.value * initMoney.value;
     }
-    if (twoDiffNum.value.length >= 2) show.value = true;
+    if (twoDiffNum.value.length >= 2) {
+        show.value = true;
+        let num = isThree.value ? 1 : 0;
+        let newnum = threeNum.value.length + num;
+        console.log('newnum',newnum)
+        sum.value = sizeVal.value * initMoney.value;
+    }
 }
-const keyText =(num)=> {
+const keyText =(num:any)=> {
     let str = "";
     switch (num) {
     case "Big":
@@ -947,19 +961,20 @@ const keyText =(num)=> {
     return str;
 }
 // 模式四 连续三个数字
-const selectThreeConNum=()=> {
+const selectThreeConNum=(name:any)=> {
+    form.value.play_type_code = name;
     isThreeConNum.value = !isThreeConNum.value;
     if (isThreeConNum.value) {
-    show.value = true;
+        show.value = true;
     } else {
-    if (threeDiffNum.value.length < 3 && twoDiffNum.value.length < 2) {
-        show.value = false;
-    }
+        if (threeDiffNum.value.length < 3 && twoDiffNum.value.length < 2) {
+            show.value = false;
+        }
     }
     if (show.value) {
-    let num = isThreeConNum.value ? 1 : 0;
-    let newnum = groupThree.value.length + num + groupTwo.value.length;
-    form.value.bet_amount = newnum * sizeVal.value * initMoney.value;
+        let num = isThreeConNum.value ? 1 : 0;
+        let newnum = groupThree.value.length + num + groupTwo.value.length;
+        sum.value = newnum * sizeVal.value * initMoney.value;
     }
 }
 // 获取代理游戏列表
@@ -1023,8 +1038,7 @@ const cutMon=(i:any)=> {
         let num = isThreeConNum.value ? 1 : 0;
         newNum = groupThree.value.length + num + groupTwo.value.length;
     }
-    // sum.value = newNum * form.value.size * form.value.money;
-    form.value.bet_amount = newNum * sizeVal.value * initMoney.value
+    sum.value = newNum * sizeVal.value * initMoney.value
 }
 // 数量change
 const valChange=(e:any)=> {
@@ -1042,9 +1056,9 @@ const valChange=(e:any)=> {
         newNum = threeNum.value.length + num;
     } else {
         let num = isThreeConNum.value ? 1 : 0;
-        let newNum = groupThree.value.length + num + groupTwo.value.length;
+        newNum = groupThree.value.length + num + groupTwo.value.length;
     }
-     form.value.bet_amount = newNum * e * initMoney.value
+     sum.value = newNum * e * initMoney.value
 }
 // 倍率
 const rateChange=(i:any)=> {
@@ -1066,7 +1080,7 @@ const rateChange=(i:any)=> {
         let num = isThreeConNum.value ? 1 : 0;
         newNum = groupThree.value.length + num + groupTwo.value.length;
     }
-    form.value.bet_amount = newNum * sizeVal.value * initMoney.value
+   sum.value = newNum * sizeVal.value * initMoney.value
 }
 // tab切换
 const tabChange=(item)=> {
@@ -1107,7 +1121,7 @@ const postBet=()=> {
         arr.push("Two");
     }
     }
-    form.value.bet_amount = form.value.bet_amount / arr.length;
+    form.value.bet_amount = sum.value / arr.length;
     form.value.issue_no = gameTime.value.issue_no;
     // if(tabAction.value!==3){
     arr.map(async(v, index) => {
@@ -1248,17 +1262,17 @@ watch(
         if (tabAction.value === 0) {
             // 第一种总数
             if (length > 0) {
-            form.value.bet_amount = length * sizeVal.value * initMoney.value;
+                sum.value = length * sizeVal.value * initMoney.value;
             }
         } else if (tabAction.value === 1) {
             // 第二种 2数相同或2+1
             if (length > 0) {
-            if (bothNum.value.length > 0 && oddNum.value.length > 0) {
-                let newNum = bothNum.value.length * oddNum.value.length + length;
-                form.value.bet_amount = newNum * sizeVal.value * initMoney.value;
-            } else {
-                form.value.bet_amount = length * sizeVal.value * initMoney.value;
-            }
+                if (bothNum.value.length > 0 && oddNum.value.length > 0) {
+                    let newNum = bothNum.value.length * oddNum.value.length + length;
+                    sum.value = newNum * sizeVal.value * initMoney.value;
+                } else {
+                    sum.value = length * sizeVal.value * initMoney.value;
+                }
             }
         }
     },{deep: true,immediate: true,}
@@ -1269,7 +1283,7 @@ watch(
         const oddlength = oddNum.value.length;
         const selectlength = selectList.value.length;
         let newNum = bothlength * oddlength + selectlength;
-        form.value.bet_amount = newNum * sizeVal.value * initMoney.value;
+        sum.value = newNum * sizeVal.value * initMoney.value;
     },
     {deep: true,immediate: true}
 )
@@ -1279,7 +1293,7 @@ watch(
         const oddlength = oddNum.value.length;
         const selectlength = selectList.value.length;
         let newNum = bothlength * oddlength + selectlength;
-        form.value.bet_amount = newNum * sizeVal.value * initMoney.value;
+        sum.value = newNum * sizeVal.value * initMoney.value;
     },{deep: true,immediate: true}
 )
 defineExpose({
@@ -1693,13 +1707,13 @@ defineExpose({
             background-image: linear-gradient(180deg, #FCFDFF 0%, #E4EDFE 53%, #F4F7FE 100%);
             color: #77819B;
             border-right: 1px solid #cdcdcd;
-            padding: 0 4px;
+            // padding: 0 1px;
             box-sizing: border-box;
             &:first-child {
-            border-radius: 4px 0 0 4px;
+                border-radius: 4px 0 0 4px;
             }
             &:last-child {
-            border-radius: 0 4px 4px 0;
+                border-radius: 0 4px 4px 0;
             }
         }
         .tabAction {
