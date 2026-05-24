@@ -313,113 +313,113 @@
                         <div class="popup-bet-box">
                         <div class="flex flex-col">
                             <template v-if="tabAction === 0">
-                            <div class="flex flex-warp flex-item-col-center">
-                                <span class="name">{{ $t("lottery.popupcell0") }}：</span>
-                                <div
-                                    v-for="(i, index) in selectList"
-                                    :key="index"
-                                    class="select-num"
-                                >{{ i }}</div
-                                >
-                            </div>
-                            </template>
-
-                            <template v-if="tabAction === 1">
-                            <template v-if="selectList.length > 0">
                                 <div class="flex flex-warp flex-item-col-center">
-                                <span class="name"
-                                    >{{ $t("lottery.k3type2text1") }}：</span
-                                >
-                                <div
-                                    v-for="(i, index) in selectList"
-                                    :key="index"
-                                    class="select-num actionViolet"
-                                >{{ i }}</div
-                                >
-                                </div>
-                            </template>
-
-                            <template v-if="bothNum.length > 0 && oddNum.length > 0">
-                                <div class="flex flex-warp flex-item-col-center">
-                                <span class="name"
-                                    >{{ $t("lottery.k3type2text2") }}：</span
-                                >
-                                <div
-                                    v-for="(i, index) in bothNum"
-                                    :key="index"
-                                    class="flex flex-warp flex-item-col-center"
-                                >
-                                    <span
-                                    class="li actionRedGreen"
-                                    v-for="(j, index1) in oddNum"
-                                    :key="index1"
-                                    >{{ i }} {{ j }}</span
-                                    >
-                                </div>
-                                </div>
-                            </template>
-                            </template>
-                            <!-- 模式三 -->
-                            <template v-if="tabAction === 2">
-                            <div class="flex-col">
-                                <template v-if="threeNum.length > 0">
-                                <div class="flex flex-warp flex-item-col-center">
-                                    <span class="name"
-                                    >{{ $t("lottery.k3type3text1") }}：</span
-                                    >
+                                    <span class="name">{{ $t("lottery.popupcell0") }}：</span>
                                     <div
-                                    v-for="(i, index) in threeNum"
-                                    :key="index"
-                                    class="select-num actionViolet"
+                                        v-for="(i, index) in selectList"
+                                        :key="index"
+                                        class="select-num"
                                     >{{ i }}</div
                                     >
                                 </div>
+                            </template>
+
+                            <template v-if="tabAction === 1">
+                                <template v-if="selectList.length > 0">
+                                    <div class="flex flex-warp flex-item-col-center">
+                                    <span class="name"
+                                        >{{ $t("lottery.k3type2text1") }}：</span
+                                    >
+                                    <div
+                                        v-for="(i, index) in selectList"
+                                        :key="index"
+                                        class="select-num actionViolet"
+                                    >{{ i }}</div
+                                    >
+                                    </div>
                                 </template>
-                                <template v-if="isThree">
-                                <div class="actionRed">{{
-                                    $t("lottery.k3type3text2")
-                                }}</div>
+
+                                <template v-if="bothNum.length > 0 && oddNum.length > 0">
+                                    <div class="flex flex-warp flex-item-col-center">
+                                    <span class="name"
+                                        >{{ $t("lottery.k3type2text2") }}：</span
+                                    >
+                                    <div
+                                        v-for="(i, index) in bothNum"
+                                        :key="index"
+                                        class="flex flex-warp flex-item-col-center"
+                                    >
+                                        <span
+                                        class="li actionRedGreen"
+                                        v-for="(j, index1) in oddNum"
+                                        :key="index1"
+                                        >{{ i }} {{ j }}</span
+                                        >
+                                    </div>
+                                    </div>
                                 </template>
-                            </div>
+                            </template>
+                            <!-- 模式三 -->
+                            <template v-if="tabAction === 2">
+                                <div class="flex-col">
+                                    <template v-if="threeNum.length > 0">
+                                    <div class="flex flex-warp flex-item-col-center">
+                                        <span class="name"
+                                        >{{ $t("lottery.k3type3text1") }}：</span
+                                        >
+                                        <div
+                                        v-for="(i, index) in threeNum"
+                                        :key="index"
+                                        class="select-num actionViolet"
+                                        >{{ i }}</div
+                                        >
+                                    </div>
+                                    </template>
+                                    <template v-if="isThree">
+                                    <div class="actionRed">{{
+                                        $t("lottery.k3type3text2")
+                                    }}</div>
+                                    </template>
+                                </div>
                             </template>
 
                             <!-- 模式四 -->
                             <template v-if="tabAction === 3">
-                            <div class="flex-col">
-                                <template v-if="threeDiffNum.length >= 3">
-                                <div class="flex flex-warp flex-item-col-center">
-                                    <span class="name"
-                                    >{{ $t("lottery.k3type4text1") }}：</span
-                                    >
-                                    <div
-                                    v-for="(i, index) in groupThree"
-                                    :key="index"
-                                    class="select-num actionViolet"
-                                    >
-                                    {{ i }}
+                                <div class="flex-col">
+                                    <template v-if="threeDiffNum.length >= 3">
+                                    <div class="flex flex-warp flex-item-col-center">
+                                        <span class="name"
+                                        >{{ $t("lottery.k3type4text1") }}：</span
+                                        >
+                                        <div
+                                        v-for="(i, index) in groupThree"
+                                        :key="index"
+                                        class="select-num actionViolet"
+                                        >
+                                        {{ i }}
+                                        </div>
                                     </div>
-                                </div>
-                                </template>
-                                <template v-if="isThreeConNum">
-                                <div class="actionRed">{{
-                                    $t("lottery.k3type4text2")
-                                }}</div>
-                                </template>
-                                <template v-if="twoDiffNum.length >= 2">
-                                <div class="flex flex-warp flex-item-col-center">
-                                    <span class="name"
-                                    >{{ $t("lottery.k3type4text3") }}：</span
-                                    >
-                                    <div
-                                    v-for="(i, index) in groupTwo"
-                                    :key="index"
-                                    class="select-num actionViolet"
-                                    >
-                                    {{ i }}
+                                    </template>
+                                    <template v-if="isThreeConNum">
+                                    <div class="actionRed">{{
+                                        $t("lottery.k3type4text2")
+                                    }}</div>
+                                    </template>
+                                    <template v-if="twoDiffNum.length >= 2">
+                                    <div class="flex flex-warp flex-item-col-center">
+                                        <span class="name"
+                                        >{{ $t("lottery.k3type4text3") }}：</span
+                                        >
+                                        <div
+                                        v-for="(i, index) in groupTwo"
+                                        :key="index"
+                                        class="select-num actionViolet"
+                                        >
+                                        {{ i }}
+                                        </div>
                                     </div>
+                                    </template>
                                 </div>
-                                </template>
-                            </div>
                             </template>
                         </div>
                         </div>
@@ -430,8 +430,8 @@
                     <span class="name">{{$t('lottery.Balance')}}</span>
                     <div class="list_item">
                         <div  class="item_box">
-                            <span class="label">₫</span>
-                            <span class="value">{{userStore.balance}}</span>
+                            <span class="label">{{balanceInfo.code}}</span>
+                            <span class="value">{{balanceInfo.balance}}</span>
                         </div>
                     </div>
                 </div>
@@ -505,6 +505,7 @@ import { useUserStore } from '@/store/modules/user'
 import { useSystemStore } from '@/store/modules/system'
 const systemStore = useSystemStore()
 const userStore = useUserStore() 
+const balanceInfo = computed(()=>systemStore.balance)
 const props = defineProps({
     gameId:{
         default: () => {
@@ -528,7 +529,7 @@ const trendRef = ref(null)
 const showMask = ref(false)
 const currentTime = ref(0)
 const sizeVal = ref(1)
-const initMoney = ref(1000)
+const initMoney = ref(1)
 
 // 开奖时间
 const gameTime = ref({})
@@ -549,7 +550,7 @@ const tabList = ref(
         { value: 3, label: $t("lottery.k3menu4"),keyVal:'DifferentDicePlay',plays:[] },
     ]
 )
-const sum = ref(1000)
+const sum = ref(1)
 const timer = ref(null)
 const showLoading = ref(false)
 const gameInfo = ref({})
@@ -586,12 +587,12 @@ const isThreeConNum = ref([])
 const groupTwo = ref([])
 const groupThree = ref([])
 const moneyList = ref([
-    { label: "1K", value: "1000" },
-    { label: "10K", value: "10000" },
-    { label: "100K", value: "100000" },
-    { label: "500K", value: "500000" },
-    { label: "1000K", value: "1000000" },
-    { label: "5000K", value: "5000000" },
+    {label:'1',value:'1'},
+    {label:'10',value:'10'},
+    {label:'100',value:'100'},
+    {label:'500',value:'500'},
+    {label:'1K',value:'1000'},
+    {label:'5K',value:'5000'}
 ])
 const liList = ref([1, 3, 9, 27, 81, 243, 729,2187])
 const rate = ref(1)
@@ -612,7 +613,7 @@ const init = ()=>{
     form.value.play_type_code = ''
     form.value.play_code = ''
     form.value.bet_info = [""]
-    initMoney.value = 1000;
+    initMoney.value = 1;
     sizeVal.value = 1;
     sum.value = initMoney.value*sizeVal.value;
     form.value.bet_amount = initMoney.value*sizeVal.value
@@ -1121,9 +1122,10 @@ const postBet=()=> {
         arr.push("Two");
     }
     }
-    form.value.bet_amount = sum.value / arr.length;
+    form.value.bet_amount = (sum.value / arr.length).toString();
     form.value.issue_no = gameTime.value.issue_no;
     // if(tabAction.value!==3){
+    console.log(arr,"222")
     arr.map(async(v, index) => {
         form.value.play_code = v;
         if (tabAction.value === 3) {
@@ -1171,20 +1173,23 @@ const postBet=()=> {
         } else {
             paramas = form.value;
         }
-        console.log(paramas,"222")
-        // showLoading.value = true;
-        // try {
-        //     await gameBetting(paramas);
-        //     if(index === arr.length - 1) {
-        //         cancel();
-        //         showToast($t('lottery.gametoast'));
-        //         emit("upDataLog");
-        //     }
-        // }catch(error) {
-        //     showToast(error.msg)
-        // }finally {
-        //     showLoading.value = false;
-        // }
+        let tabObj = tabList.value.find(ite=>ite.keyVal == paramas.play_type_code)
+        console.log(tabObj,"tabObj")
+        let playObj = tabObj.plays.find(ite=>ite.play_code == paramas.play_code)
+        paramas.pk = playObj.pk
+        showLoading.value = true;
+        try {
+            await gameBetting(paramas);
+            if(index === arr.length - 1) {
+                cancel();
+                showToast($t('lottery.gametoast'));
+                emit("upDataLog");
+            }
+        }catch(error) {
+            showToast(error.msg)
+        }finally {
+            showLoading.value = false;
+        }
     });
 }
 const closePopup=()=> {

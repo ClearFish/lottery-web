@@ -162,8 +162,8 @@
 						<span class="name">{{$t("lottery.Balance")}}</span>
 						<div class="list_item">
 							<div class="item_box">
-								<span class="label">₫</span>
-                            	<span class="value">{{userStore.balance}}</span>
+								<span class="label">{{balanceInfo.code}}</span>
+                            	<span class="value">{{balanceInfo.balance}}</span>
 							</div>
 						</div>
 					</div>
@@ -209,7 +209,7 @@
 <script setup lang="ts">
 import miment from 'miment'
 import { ref, defineEmits, watch,defineExpose,computed } from "vue"
-import { getTimes, getGame, bet, getResult, getGameAgentAlias,getResultByGameCodeAndPeriod } from '@/api/lottery'
+import { getTimes, getGame, bet, getResult, getGameAgentAlias,getResultByGameCodeAndPeriod,gameBetting } from '@/api/lottery'
 import { showToast } from 'vant'
 import { $t } from '@/locales'
 import { useUserStore } from '@/store/modules/user'
@@ -235,7 +235,7 @@ const props = defineProps({
     }
 })
 
-
+const balanceInfo = computed(()=>systemStore.balance)
 const show = ref(false)
 const time = ref(1000*60)
 const timeData:any = ref({})
@@ -243,12 +243,12 @@ const indexList = ref(['A','B','C','D','E'])
 const tabCurrent = ref(0)
 const moneyList = ref(
 	[
+		{label:'1',value:'1'},
+		{label:'10',value:'10'},
+		{label:'100',value:'100'},
+		{label:'500',value:'500'},
 		{label:'1K',value:'1000'},
-		{label:'10K',value:'10000'},
-		{label:'100K',value:'100000'},
-		{label:'500K',value:'500000'},
-		{label:'1000K',value:'1000000'},
-		{label:'5000K',value:'5000000'}
+		{label:'5K',value:'5000'}
 	]
 )
 const liList = ref([1,3,9,27,81,243,729,2187])
@@ -263,7 +263,7 @@ const form:any = ref({
     bet_amount: ""
 })
 const playType = ref([])
-const sum = ref(1000)
+const sum = ref(1)
 const gameInfo:any = ref({})
 const gameTime:any = ref({})
 const winInfo:any = ref({})
@@ -294,7 +294,7 @@ const game_id = ref(null)
 const recentReuslt = ref([])
 const sizeVal = ref(1)
 const game_code = computed(()=>systemStore.game_code)
-const initMoney = ref(1000)
+const initMoney = ref(1)
 
 const emit = defineEmits(["showLotteryResult","updata","upDataLog",]);
 const showLotteryResult=()=> {
@@ -383,7 +383,7 @@ const getResultData=async(previous_period:string)=>{
 }
 		
 // 下注
-const postBet=()=>{
+const postBet=async()=>{
 	/**
 	 * 	game_code: systemStore.game_code,
 		issue_no: "",
@@ -393,7 +393,7 @@ const postBet=()=>{
 		bet_info: [""],
 		bet_amount: ""
 	 */
-	form.value.bet_amount = sum.value/playType.value.length;
+	form.value.bet_amount = (sum.value/playType.value.length).toString();
 	form.value.issue_no = gameTime.value.issue_no;
 	let length = playType.value.length-1
 	console.log('playType.value', playType.value)
@@ -421,20 +421,19 @@ const postBet=()=>{
 		}else {
 			paramas = form.value
 		}
-		console.log(paramas,"2233")
-		// showLoading.value = true
-		// try {
-		// 	await bet(paramas);
-		// 	if(index === length) {
-		// 		cancel();
-		// 		showToast($t('lottery.gametoast'))
-		// 		emit('upDataLog')
-		// 	}
-		// }catch(error) {
-		// 	showToast(error.msg)
-		// }finally {
-		// 	showLoading.value = false
-		// }
+		console.log(paramas,"2233",playType.value)
+		try {
+			await gameBetting(paramas);
+			if(index === length) {
+				cancel()
+				showToast($t('lottery.gametoast'))
+				emit('upDataLog')
+			}
+		}catch(error) {
+			showToast(error.msg)
+		}finally {
+			showLoading.value = false
+		}
 	})
 	
 }
@@ -581,9 +580,9 @@ const init=()=>{
 		sum.value = 0
 		playType.value = []
 		form.value.bet_play = null
-		form.value.bet_amount = 1000
-		sum.value = 1000
-		initMoney.value = 1000
+		form.value.bet_amount = 1
+		sum.value = 1
+		initMoney.value = 1
 		sizeVal.value = 1
 		showMask.value = false
 	}
