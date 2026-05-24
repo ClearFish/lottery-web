@@ -229,7 +229,7 @@ const gameType = ref([
 	{value: 10,label: '10',gameids:[4,8,12]}
 ])
 const rateList = ref([1,3,9,27,81,243,729])
-const initMoney = ref(1000)
+const initMoney = ref(1)
 const form:any = ref({
 		// game_id: null, // 游戏id
 		// currency: 'SYSTEM', // 币种
@@ -243,17 +243,17 @@ const form:any = ref({
 		pk: "",
 		play_type_code: "",
 		play_code: "",
-		bet_info: [""],
+		bet_info: [],
 		bet_amount: ""
 	})
 const moneyList = ref(
 	[
+		{label:'1',value:'1'},
+		{label:'10',value:'10'},
+		{label:'100',value:'100'},
+		{label:'500',value:'500'},
 		{label:'1K',value:'1000'},
-		{label:'10K',value:'10000'},
-		{label:'100K',value:'100000'},
-		{label:'500K',value:'500000'},
-		{label:'1000K',value:'1000000'},
-		{label:'5000K',value:'5000000'}
+		{label:'5K',value:'5000'}
 	]
 )
 const liList = ref([1,3,9,27,81,243,729,2187])
@@ -426,17 +426,19 @@ const postBet=async()=>{
 	}
 	
 	console.log(paramas,2222)
+	paramas.play_code = paramas.play_code.toString()
+	paramas.bet_amount = paramas.bet_amount.toString()
 	showLoading.value = true
-	// try {
-	// 	await gameBetting(paramas);
-	// 	cancel()
-	// 	showToast($t('lottery.gametoast'))
-	// 	emit('upDataLog')
-	// }catch(error) {
-	// 	showToast(error.msg)
-	// }finally {
-	// 	showLoading.value = false
-	// }
+	try {
+		await gameBetting(paramas);
+		cancel()
+		showToast($t('lottery.gametoast'))
+		emit('upDataLog')
+	}catch(error) {
+		showToast(error.msg)
+	}finally {
+		showLoading.value = false
+	}
 }
 		
 const onChange=(e)=> {
@@ -551,7 +553,7 @@ const init=()=>{
 		form.value.pk = ''
 		form.value.play_type_code = ''
 		form.value.play_code = ''
-		form.value.bet_info = [""]
+		form.value.bet_info = []
 		form.value.bet_amount = ''
 		showMask.value = false
 	}

@@ -223,29 +223,35 @@
                                          <template #title>
 											<div class="flex-sb coll_header">
 												<div class="flex flex-col cool_item">
-													<div class="period" style="padding-bottom: 10px;">{{item.period}}</div>
-													<div>{{item.createtime}}</div>
+													<div class="period" style="padding-bottom: 10px;">{{item.issue_no}}</div>
+													<div>{{item.created_at}}</div>
 												</div>
 												<div class="flex flex-col cool_item">
-													<template v-if="Number(item.status)===0">
+													<template v-if="item.status == 'Pending'">
 														<div class="flex-col flex-end">
 														<div class="money state-r">{{ $t('lottery.gamerecordstatus0') }}</div>
 														<div>
-															<span style="padding-right: 10px;box-sizing:border-box;">{{ $t(item.bet_play) }}</span>
-															<span style="padding-right: 10px;box-sizing:border-box;">{{item.currency_symbol}}</span>
+															<span style="padding-right: 10px;box-sizing:border-box;">{{ item.play_code}}</span>
+															<span style="padding-right: 10px;box-sizing:border-box;">{{item.currency_code}}</span>
 															<span class="money" >{{Number(item.bet_amount)}}</span>
 														</div>
 													</div>
 													</template>
 													<template v-else>
 														<div class="flex-col flex-end">
-															<div class="money state-r" :style="{'color': [1,3].includes(Number(item.settle)) ? 'green':'red'}">
-																{{[1,3].includes(Number(item.settle))? $t('lottery.gamerecordwintit') : Number(item.settle)===5? $t('lottery.gamerecorddraw') :$t('lottery.gamerecordfailtit')}}
+															<div class="money state-r" :style="{'color': item.settle == 'Win' ? 'green':'red'}">
+																{{item.settle == 'Win'? $t('lottery.gamerecordwintit') :
+																 item.settle == 'Cancel' ? $t('lottery.gamerecorddraw') :$t('lottery.gamerecordfailtit')}}
 															</div>
 															<div>	
-																<span style="padding-right: 10px;box-sizing:border-box;">{{ $t(item.bet_play) }}</span>
-																<span style="padding-right: 10px;box-sizing:border-box;" :style="{'color': [1,3].includes(Number(item.settle))? 'green':'red'}">{{item.currency_symbol}}</span>
-																<span class="money" :style="{'color': [1,3].includes(Number(item.settle))? 'green':'red'}"><span v-if="Number(item.net_amount)>0 &&[1,3].includes(Number(item.settle))">+</span>{{Number(item.net_amount)>0&&[1,3].includes(Number(item.settle))?Number(item.net_amount):Number(item.bet_amount)}}</span>
+																<span style="padding-right: 10px;box-sizing:border-box;">{{ item.game_code}}</span>
+																<span style="padding-right: 10px;box-sizing:border-box;" 
+																	:style="{'color': item.settle == 'Win' ? 'green':'red'}">{{item.currency_code}}</span>
+																<span class="money" :style="{'color': item.settle == 'Win' ? 'green':'red'}">
+																	<span v-if="Number(item.net_amount)>0 && item.settle == 'Win'">+</span>
+																	{{Number(item.net_amount)>0 && item.settle == 'Win' ?
+																		Number(item.net_amount): Number(item.bet_amount)}}
+																</span>
 															</div>
 														</div>
 													</template>
@@ -256,36 +262,41 @@
 										<!-- 详情 -->
 										<div class="van-collapse-content">
 											<div class="d-title">{{ $t('lottery.gamerecorddestit') }}</div>
-											<van-cell :title="$t('lottery.tradingrecordorderNum')" :value="item.order_number"></van-cell>
-											<van-cell :title="$t('lottery.gamerecordnumtit')" :value="item.period"></van-cell>
-											<van-cell :title="$t('lottery.gamerecordgivemoney')" :value="item.currency_symbol+' '+Number(item.bet_amount)">
+											<van-cell :title="$t('lottery.tradingrecordorderNum')" :value="item.ref_id"></van-cell>
+											<van-cell :title="$t('lottery.gamerecordnumtit')" :value="item.issue_no"></van-cell>
+											<van-cell :title="$t('lottery.gamerecordgivemoney')" :value="item.currency_code+' '+Number(item.bet_amount)">
 											</van-cell>
-                                            <van-cell :title="$t('lottery.gamerecordgivefee')" :value="item.currency_symbol+' '+Number(item.fee_amount)">
-											</van-cell>
-											<van-cell :title="$t('lottery.gamerecordbettit')" :value="$t(item.bet_play)"></van-cell>
+                                            <!-- <van-cell :title="$t('lottery.gamerecordgivefee')" :value="item.currency_code+' '+Number(item.fee_amount)">
+											</van-cell> -->
+											<van-cell :title="$t('lottery.gamerecordbettit')" :value="item.play_code"></van-cell>
 											<van-cell :title="$t('lottery.gamerecordresulttit')">
-												<div  class="money result" :style="{'color': [1,3].includes(Number(item.settle))? 'green':'red'}">
-													<template v-if="Number(item.status)===0">
+												<div  class="money result" :style="{'color': item.settle == 'Win' ? 'green':'red'}">
+													<template v-if="item.status == 'Pending'">
 														{{ $t('lottery.gamerecordstatus0') }}
 													</template>
 													<template v-else>
-														{{[1,3].includes(Number(item.settle))? $t('lottery.gamerecordwintit') :Number(item.settle)===5? $t('lottery.gamerecorddraw') : $t('lottery.gamerecordfailtit')}}
+														{{ item.settle == 'Win'? $t('lottery.gamerecordwintit') :
+														 item.settle == 'Cancel' ? $t('lottery.gamerecorddraw') : $t('lottery.gamerecordfailtit')}}
 													</template>
 													
 												</div>
 											</van-cell>
 											<van-cell :title="$t('lottery.gamerecordwinmoney')">
-												<div class="money" :style="{'color': [1,3].includes(Number(item.settle))? 'green':'red'}">{{item.currency_symbol}} 
-													<span v-if="Number(item.net_amount)>0 && [1,3].includes(Number(item.settle))" style="padding-left: 5px;box-sizing:border-box;">+</span>{{item.net_amount}}</div>
+												<div class="money" :style="{'color': item.settle == 'Win' ? 'green':'red'}">
+													{{item.currency_code}} 
+													<span v-if="Number(item.net_amount)>0 && item.settle == 'Win'" 
+															style="padding-left: 5px;box-sizing:border-box;">+</span>
+													{{item.net_amount}}
+												</div>
 											</van-cell>
-											<van-cell :title="$t('lottery.gamerecordtimetit')" :value="item.createtime"></van-cell>
+											<van-cell :title="$t('lottery.gamerecordtimetit')" :value="item.created_at"></van-cell>
 										</div>
 									</van-collapse-item>
 								</van-collapse>
 
 							</div>
 						</div>
-						<van-empty v-else  :description="$t('invite.nomore')" style="padding-top: 50px;" />
+						<van-empty v-else  :description="$t('common.noMore')" style="padding-top: 50px;" />
 						
 					</template>
 					<div class="page_container">
@@ -313,7 +324,7 @@ import Clock from "@/assets/game/clock.png"
 import ClockChosed from "@/assets/game/clock_chosed.png"
 import Music1 from "@/assets/game/di1.mp3"
 import Music2 from "@/assets/game/di2.mp3"
-import { gameResultsRecord, betRecord } from '@/api/lottery'
+import { gameResultsRecord, betRecord,rollingRecord } from '@/api/lottery'
 import { ref, computed, onMounted, nextTick, onUnmounted,watch } from 'vue'
 import { useSystemStore } from '@/store/modules/system' 
 import { $t } from '@/locales'
@@ -590,10 +601,10 @@ const getResultRecord = async(type?:any)=>{
     })
 }
 //用户下注数据
-const getBetRecord =()=>{
+const getBetRecord = async()=>{
     betRecord(betParams.value).then((res:any) =>{
-        betRecordList.value = res.rows
-        total.value = res.total
+        betRecordList.value = res.data
+        total.value = res.meta.total
         getUserInfo()
     })
 }
