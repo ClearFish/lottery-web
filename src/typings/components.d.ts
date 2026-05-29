@@ -28,7 +28,6 @@ declare module '@vue/runtime-core' {
     RouterView: typeof import('vue-router')['RouterView']
     Share: typeof import('./../components/Share/index.vue')['default']
     SvgIcon: typeof import('./../components/SvgIcon/index.vue')['default']
-    Tabbar: typeof import('./../components/Tabbar/index.vue')['default']
     Trend: typeof import('./../components/follow-up/trend.vue')['default']
     VanButton: typeof import('vant/es')['Button']
     VanCell: typeof import('vant/es')['Cell']
@@ -45,8 +44,8 @@ declare module '@vue/runtime-core' {
     VanOverlay: typeof import('vant/es')['Overlay']
     VanPopup: typeof import('vant/es')['Popup']
     VanStepper: typeof import('vant/es')['Stepper']
-    VanTabbar: typeof import('vant/es')['Tabbar']
-    VanTabbarItem: typeof import('vant/es')['TabbarItem']
+    VanTab: typeof import('vant/es')['Tab']
+    VanTabs: typeof import('vant/es')['Tabs']
     Win: typeof import('./../components/Lottery/win.vue')['default']
   }
 }

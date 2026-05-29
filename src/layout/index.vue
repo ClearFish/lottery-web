@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import tabbar from "@/components/Tabbar/index.vue";
 import NavBar from "@/components/NavBar/index.vue";
 import { useCachedViewStoreHook } from "@/store/modules/cachedView";
 import { useDarkMode } from "@/hooks/useToggleDarkMode";
@@ -45,7 +44,6 @@ provideNavBarRight(navBarRight);
           <component :is="Component" />
         </keep-alive>
       </router-view>
-      <tabbar v-if="showTabbar" />
     </van-config-provider>
   </div>
 </template>
