@@ -33,8 +33,12 @@ class Http {
         NProgress.start();
         // 自动添加token到请求头
         const token = localStorage.getItem('token');
+        const lang = localStorage.getItem('language')
         if (token) {
           config.headers['Authorization'] = 'Bearer ' + token;
+        }
+        if(lang) {
+          config.headers['Accept-Language'] = lang;
         }
         
 
