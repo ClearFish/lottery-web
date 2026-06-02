@@ -580,22 +580,22 @@ const getResultRecord = async(type?:any)=>{
 		pageSize:params.value.pageSize,
 	}
     gameResultsRecord(param).then((res:any)=>{
-        gameLog.value = res.data
-        total.value = res.meta.total
+        gameLog.value = res.data.items
+        total.value = res.data.total
         getUserInfo();
         // 页面加在初始化中将结果数字  
         if(type == 1) {
 			if(k3Ref.value) {
 				k3Ref.value.setAnimation()
-				k3Ref.value.getCurrentIssueWinNumber(res.data[0].result)
-				k3Ref.value.setRecentRes(res.data[0]);
+				k3Ref.value.getCurrentIssueWinNumber(res.data.items[0].result)
+				k3Ref.value.setRecentRes(res.data.items[0]);
 			}
 			if(d5Ref.value) {
-				d5Ref.value.start(res.data[0].result)
-				d5Ref.value.setRecentRes(res.data[0].result);
+				d5Ref.value.start(res.data.items[0].result)
+				d5Ref.value.setRecentRes(res.data.items[0].result);
 			}
 			if(winRef.value) {
-				winRef.value.setRecentRes(res.data[0]);
+				winRef.value.setRecentRes(res.data.items[0]);
 			}
         }
     })
@@ -603,8 +603,8 @@ const getResultRecord = async(type?:any)=>{
 //用户下注数据
 const getBetRecord = async()=>{
     betRecord(betParams.value).then((res:any) =>{
-        betRecordList.value = res.data
-        total.value = res.meta.total
+        betRecordList.value = res.data.items
+        total.value = res.data.total
         getUserInfo()
     })
 }

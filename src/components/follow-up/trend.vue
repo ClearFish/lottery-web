@@ -83,9 +83,9 @@ const initData=(game_code:any)=> {
     showLoading.value = true
     var newArr = [];
     gameResultsRecord({game_code:game_code,pageIndex:1,pageSize:100}).then(res=>{
-        arrs.value = res.data
+        arrs.value = res.data.items
         
-        let arrVal = res.data.map(item=>{
+        let arrVal = res.data.items.map(item=>{
             return item.result[0]
         })
         for(var i = 0;i<arrVal.length;i++) {

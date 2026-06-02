@@ -32,9 +32,9 @@ class Http {
       config => {
         NProgress.start();
         // 自动添加token到请求头
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
         const lang = localStorage.getItem('language')
-        if (token) {
+        if (token && token !== 'undefined' && token !== 'null') {
           config.headers['Authorization'] = 'Bearer ' + token;
         }
         if(lang) {
@@ -101,6 +101,7 @@ class Http {
             message = $t('http.unauthorized');
             // token过期，清除本地token
             localStorage.removeItem('token');
+            sessionStorage.removeItem('token');
             // 清除登录用户的IM链接缓存
             // try {
             //   import('@/utils/im-cache').then(({ clearUserIMCache }) => {

@@ -119,10 +119,10 @@ const open = async(info:any)=> {
     }
     let res = await getRollingBettingRecord(params);
     lotteryInfo.value = info;
-    betInfo.value = res.data;
-    if(res.data && res.data.length >0) {
+    betInfo.value = res.data.items;
+    if(res.data.items && res.data.items.length >0) {
         let amount = 0
-        amount = res.data.reduce((amount:any,item:any)=>Number(amount)+Number(item.net_amount),amount)
+        amount = res.data.items.reduce((amount:any,item:any)=>Number(amount)+Number(item.net_amount),amount)
         winNum.value = amount.toFixed(2)
     }else {
         winNum.value = 0
