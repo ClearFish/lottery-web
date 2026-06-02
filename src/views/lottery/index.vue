@@ -390,21 +390,21 @@ onMounted(()=>{
 	// 游戏类型
 	if(wingoGameCode.includes(gameInfo.game_code)){
 		game_type.value = 0;
-		let winTypes = systemStore.gameConfig.filter((item:any)=>wingoGameCode.includes(item.game_code));
+		let winTypes = systemStore.gameConfig.filter((item:any)=>wingoGameCode.includes(item.game_code)).sort((a:any,b:any)=>a.id-b.id);
 		current.value = winTypes.findIndex((item:any)=>item.game_code == gameInfo.game_code);
 		gameType.value.forEach((item:any,index:any)=>{
 			return Object.assign(item,winTypes[index])
 		})
 	}else if(lotre5DGameCode.includes(gameInfo.game_code)){
 		game_type.value = 1;
-		let lotre5DTypes = systemStore.gameConfig.filter((item:any)=>lotre5DGameCode.includes(item.game_code));
+		let lotre5DTypes = systemStore.gameConfig.filter((item:any)=>lotre5DGameCode.includes(item.game_code)).sort((a:any,b:any)=>a.id-b.id);
 		current.value = lotre5DTypes.findIndex((item:any)=>item.game_code == gameInfo.game_code);
 		gameType.value.forEach((item:any,index:any)=>{
 			return Object.assign(item,lotre5DTypes[index])
 		})
 	}else if(k3GameCode.includes(gameInfo.game_code)){
 		game_type.value = 2;
-		let k3Types = systemStore.gameConfig.filter((item:any)=>k3GameCode.includes(item.game_code));
+		let k3Types = systemStore.gameConfig.filter((item:any)=>k3GameCode.includes(item.game_code)).sort((a:any,b:any)=>a.id-b.id);
 		current.value = k3Types.findIndex((item:any)=>item.game_code == gameInfo.game_code);
 		gameType.value.forEach((item:any,index:any)=>{
 			return Object.assign(item,k3Types[index])
