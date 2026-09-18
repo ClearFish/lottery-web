@@ -68,7 +68,7 @@ export default defineConfig(({ mode }) => {
       // doc: https://github.com/pengzhanbo/vite-plugin-mock-dev-server
       proxy: {
         "^/api": {
-          target: "http://ec2-43-198-91-0.ap-east-1.compute.amazonaws.com:8081/api",
+          target: "https://game.tmbet.xyz/api",
           changeOrigin: true,
           secure: true,
           rewrite: (path) => path.replace(/^\/api/, ''),
@@ -85,12 +85,12 @@ export default defineConfig(({ mode }) => {
           }
         },
         "^/addons": {
-          target: "http://ec2-43-198-91-0.ap-east-1.compute.amazonaws.com:8081/",
+          target: "https://game.tmbet.xyz/",
           changeOrigin: true,
           secure: true
         },
         "^/uploads": {
-          target: "http://ec2-43-198-91-0.ap-east-1.compute.amazonaws.com:8081/",
+          target: "https://game.tmbet.xyz/",
           changeOrigin: true,
           secure: true
         },

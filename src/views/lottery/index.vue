@@ -281,7 +281,7 @@
 													
 												</div>
 											</van-cell>
-											<van-cell :title="$t('lottery.gamerecordwinmoney')">
+											<van-cell :title="$t('lottery.gamerecordwinmoney')" v-if="item.settle == 'Win'">
 												<div class="money" :style="{'color': item.settle == 'Win' ? 'green':'red'}">
 													{{item.currency_code}} 
 													<span v-if="Number(item.net_amount)>0 && item.settle == 'Win'" 
